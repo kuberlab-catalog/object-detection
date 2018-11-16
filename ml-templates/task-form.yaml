@@ -1,0 +1,16 @@
+- name: model_name
+  label: Export to model
+  type: string
+  value: object-detection
+  width: 50
+
+- name: model_version
+  label: Model version
+  type: string
+  value: 1.0.0
+  width: 50
+
+- name: num_train_steps
+  label: Train steps quantity
+  type: int
+  value: 1000
