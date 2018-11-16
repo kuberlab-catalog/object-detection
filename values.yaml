@@ -15,7 +15,7 @@ dataset:
 code:
   value: object-detection-code
   workspace: kuberlab-demo
-  version: "0.0.1"
+  version: "0.0.2"
   wizard:
     name: "Select model with object detection API"
     kind: model
