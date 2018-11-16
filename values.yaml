@@ -12,5 +12,13 @@ dataset:
     name: "Dataset configuration"
     kind: dataset
 
+code:
+  value: object-detection-code
+  workspace: kuberlab-demo
+  version: "0.0.1"
+  wizard:
+    name: "Select model with object detection API"
+    kind: model
+
 serving_port: 9000
 
