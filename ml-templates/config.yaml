@@ -15,11 +15,12 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        sed -i -e "s|%DATADIR%|$DATA_DIR|g" -e "s|num_steps: 50000|num_steps: 1000|g" $SRC_DIR/faster_rcnn_resnet101_pets.config;
-        python object_detection/train.py
-        --train_dir $TRAINING_DIR/$BUILD_ID
+        sed -i -e "s|%DATADIR%|$DATA_DIR|g" $SRC_DIR/faster_rcnn_resnet101_pets.config;
+        python object_detection/model_main.py
+        --model_dir $TRAINING_DIR/$BUILD_ID
         --pipeline_config_path $SRC_DIR/faster_rcnn_resnet101_pets.config
-      workdir: "$SRC_DIR"
+        --num_train_steps=1000
+      workdir: "$RESEARCH_DIR"
       resources:
         accelerators:
           gpu: 1
