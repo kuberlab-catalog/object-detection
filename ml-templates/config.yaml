@@ -200,7 +200,7 @@ spec:
   - mountPath: /notebooks/research
     name: research
     {{- if .code.value }}
-    datasetFS:
+    model:
       dataset: {{ .code.value }}
       workspace: {{ .code.workspace }}
       version: {{ .code.version }}
