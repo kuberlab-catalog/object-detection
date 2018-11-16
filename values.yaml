@@ -1,8 +1,8 @@
 storage:
- value: default
- wizard:
-   name: "Storage Configuration"
-   kind: cluster_storage
+  value: default
+  wizard:
+    name: "Storage Configuration"
+    kind: cluster_storage
 
 dataset:
   value: object-detection-pets
