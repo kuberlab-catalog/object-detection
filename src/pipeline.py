@@ -34,45 +34,69 @@ def override_task_arguments(task, params):
             )
         else:
             # Add
+            val = v
+            if isinstance(v, list):
+                val = " ".join(v)
             if 'args' in resource:
-                resource['args'][k] = v
+                resource['args'][k] = val
             else:
-                resource['args'] = {k: v}
+                resource['args'] = {k: val}
 
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_train_steps')
+    parser.add_argument('--num_steps')
     parser.add_argument('--model_name')
     parser.add_argument('--model_version')
-
+    parser.add_argument('--resize_min_dimension')
+    parser.add_argument('--resize_max_dimension')
+    parser.add_argument('--resize_fixed_width')
+    parser.add_argument('--resize_fixed_height')
+    parser.add_argument('--train_build_id')
+    parser.add_argument('--train_checkpoint')
+    parser.add_argument('--grid_scales', nargs='*')
+    parser.add_argument('--grid_aspect_ratios', nargs='*')
     return parser
 
 
 def main():
     parser = get_parser()
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
 
     override_args = {
-        'train': {
-            'num_train_steps': args.num_train_steps,
+        '_common': {
+            'grid_scales': args.grid_scales,
+            'grid_aspect_ratios': args.grid_aspect_ratios,
         },
+        'train': {
+            'num_steps': args.num_steps,
+            'resize_min_dimension': args.resize_min_dimension,
+            'resize_max_dimension': args.resize_max_dimension,
+            'resize_fixed_width': args.resize_fixed_width,
+            'resize_fixed_height': args.resize_fixed_height,
+        },
+        'export': {
+            'model_name': args.model_name,
+            'model_version': args.model_version,
+            'train_build_id': '',
+            'train_checkpoint': '',
+        }
     }
 
     app = mlboard.apps.get()
 
-    last_build = ''
+    train_build_id = ''
+    train_checkpoint = ''
 
     for task in run_tasks:
         t = app.tasks.get(task)
         if t.name in override_args and override_args[t.name]:
+            if 'train_build_id' in override_args[t.name]:
+                override_args[t.name]['train_build_id'] = train_build_id
+            if 'train_checkpoint' in override_args[t.name]:
+                override_args[t.name]['train_checkpoint'] = train_checkpoint
             override_task_arguments(t, override_args[t.name])
-
-        r = t.config['resources'][0]
-        r['command'] = r['command'].replace('BUILD=1', 'BUILD=%s' % last_build)
-        r['command'] = r['command'].replace('CHECKPOINT=1000', 'CHECKPOINT=%s' % args.num_train_steps)
-        r['command'] = r['command'].replace('MODEL_NAME=object-detection', 'MODEL_NAME=%s' % args.model_name)
-        r['command'] = r['command'].replace('MODEL_VERSION=1.0.0', 'MODEL_VERSION=%s' % args.model_version)
+        override_task_arguments(t, override_args['_common'])
 
         LOG.info("Start task %s..." % t.name)
 
@@ -101,7 +125,9 @@ def main():
             % (completed.name, completed.build, completed.status)
         )
 
-        last_build = completed.build
+        if t.name == 'train':
+            train_build_id = completed.build
+            train_checkpoint = args.num_steps
 
     LOG.info("Workflow completed with status SUCCESS")
 

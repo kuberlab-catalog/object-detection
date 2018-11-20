@@ -3,14 +3,52 @@
   type: string
   value: object-detection
   width: 50
-
 - name: model_version
   label: Model version
   type: string
   value: 1.0.0
   width: 50
-
-- name: num_train_steps
+- name: num_steps
   label: Train steps quantity
   type: int
   value: 1000
+- label: Resize
+  type: group
+  elements:
+  - name: resize_min_dimension
+    label: Minimal resize dimension
+    type: int
+    value: 600
+    width: 50
+  - name: resize_max_dimension
+    label: Miximal resize dimension
+    type: int
+    value: 1024
+    width: 50
+  - name: resize_fixed_width
+    label: Fixed resize width
+    type: int
+    width: 50
+  - name: resize_fixed_height
+    label: Fixed resize height
+    type: int
+    width: 50
+- name: grid_scales
+  label: Grid generator scales
+  type: list
+  value:
+    - 0.25
+    - 0.5
+    - 1
+    - 2
+  width: 50
+  listType: float
+- name: grid_aspect_ratios
+  label: Grid generator aspect ratios
+  type: list
+  value:
+    - 0.5
+    - 1
+    - 2
+  width: 50
+  listType: float

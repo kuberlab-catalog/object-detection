@@ -15,12 +15,12 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        sed -i -e "s|%DATADIR%|$DATA_DIR|g" $SRC_DIR/faster_rcnn_resnet101_pets.config;
-        python object_detection/model_main.py
-        --model_dir $TRAINING_DIR/$BUILD_ID
-        --pipeline_config_path $SRC_DIR/faster_rcnn_resnet101_pets.config
-        --num_train_steps=1000
-      workdir: "$RESEARCH_DIR"
+        python train.py
+        --research_dir $RESEARCH_DIR
+        --data_dir $DATA_DIR
+        --training_dir $TRAINING_DIR
+        --build_id $BUILD_ID
+      workdir: "$SRC_DIR"
       resources:
         accelerators:
           gpu: 1
@@ -45,18 +45,13 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        BUILD=1;
-        CHECKPOINT=1000;
-        MODEL_NAME=object-detection;
-        MODEL_VERSION=1.0.0;
-        sed -i -e "s|%DATADIR%|$DATA_DIR|g" $SRC_DIR/faster_rcnn_resnet101_pets.config;
-        python object_detection/export_inference_graph.py
-        --input_type encoded_image_string_tensor
-        --pipeline_config_path $SRC_DIR/faster_rcnn_resnet101_pets.config
-        --trained_checkpoint_prefix $TRAINING_DIR/$BUILD/model.ckpt-${CHECKPOINT}
-        --output_directory $TRAINING_DIR/model/$BUILD;
-        python -c "from mlboardclient.api import client; m = client.Client(); m.model_upload('$MODEL_NAME', '$MODEL_VERSION', '$TRAINING_DIR/model/$BUILD/saved_model'); m.update_task_info({'model': '#/$WORKSPACE_NAME/catalog/mlmodel/$MODEL_NAME/versions/$MODEL_VERSION'})"
-      workdir: "$RESEARCH_DIR"
+        python export.py
+        --research_dir $RESEARCH_DIR
+        --data_dir $DATA_DIR
+        --training_dir $TRAINING_DIR
+        --train_build_id 1
+        --train_checkpoint 1000
+      workdir: "$SRC_DIR"
       resources:
         accelerators:
           gpu: 0
