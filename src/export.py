@@ -1,5 +1,5 @@
 from config import build_config
-from subprocess import check_output
+from subprocess import call
 from argparse import ArgumentParser
 import sys, os
 
@@ -31,7 +31,7 @@ def main():
     targs.append("--output_directory")
     targs.append("%s/model/%s" % (args.training_dir, args.train_build_id))
 
-    print(check_output(targs))
+    call(targs)
 
     m = client.Client()
     m.model_upload(

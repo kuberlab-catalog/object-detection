@@ -1,5 +1,5 @@
 from config import build_config
-from subprocess import check_output
+from subprocess import call
 from argparse import ArgumentParser
 import sys
 
@@ -23,7 +23,7 @@ def main():
     targs.append("--model_dir")
     targs.append("%s/%s" % (args.training_dir, args.build_id))
 
-    print(check_output(targs))
+    call(targs)
 
     client.Client().update_task_info({
         'train_build_id': args.build_id,
