@@ -82,6 +82,7 @@ spec:
         --training_dir $TRAINING_DIR
         --build_id $BUILD_ID
       workdir: "$SRC_DIR"
+      port: 2222
       resources:
         accelerators:
           gpu: 1
@@ -100,7 +101,7 @@ spec:
       restartPolicy: Never
       maxRestartCount: 0
       allowFail: true
-      isPermanent: true
+      is_permanent: true
       images:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
@@ -111,6 +112,7 @@ spec:
         --training_dir $TRAINING_DIR
         --build_id $BUILD_ID
       workdir: "$SRC_DIR"
+      port: 2222
       resources:
         accelerators:
           gpu: 0
