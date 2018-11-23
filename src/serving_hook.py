@@ -114,6 +114,7 @@ def postprocess(outputs, ctx):
     detection_classes = np.int32((outputs["detection_classes"])).reshape([-1])
     width = ctx.image.size[0]
     height = ctx.image.size[1]
+    ctx.image = ctx.image.convert('RGB')
     image_arr = np.array(ctx.image)
 
     vis_utils.visualize_boxes_and_labels_on_image_array(
