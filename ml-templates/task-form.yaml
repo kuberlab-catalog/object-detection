@@ -19,20 +19,48 @@
     label: Minimal resize dimension
     type: int
     value: 600
-    width: 50
+    width: 25
   - name: resize_max_dimension
     label: Miximal resize dimension
     type: int
     value: 1024
-    width: 50
+    width: 25
   - name: resize_fixed_width
     label: Fixed resize width
     type: int
-    width: 50
+    width: 25
   - name: resize_fixed_height
     label: Fixed resize height
     type: int
-    width: 50
+    width: 25
+- label: Paths
+  type: group
+  elements:
+  - name: tf_record_train_path
+    label: TF record train path
+    type: string
+    value: "$DATA_DIR/pet_train_with_masks.record"
+    width: 33
+  - name: tf_record_test_path
+    label: TF record tedt path
+    type: string
+    value: "$DATA_DIR/pet_val_with_masks.record"
+    width: 33
+  - name: label_map_path
+    label: Labels map
+    type: string
+    value: "$DATA_DIR/pet_label_map.pbtxt"
+    width: 33
+  - name: use_pretrained_checkpoint
+    label: Use pretrained checkpoint
+    type: boolean
+    value: true
+    width: 33
+  - name: pretrained_checkpoint_path
+    label: Pretrained checkpoint path
+    type: string
+    value: "$DATA_DIR/model.ckpt"
+    width: 66
 - name: grid_scales
   label: Grid generator scales
   type: list

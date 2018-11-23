@@ -11,8 +11,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--research_dir')
     parser.add_argument('--training_dir')
-    parser.add_argument('--model_name')
-    parser.add_argument('--model_version')
+    parser.add_argument('--model_name', default="object-detection")
+    parser.add_argument('--model_version', default="1.0.0")
     parser.add_argument('--train_build_id')
     parser.add_argument('--train_checkpoint')
     args, _ = parser.parse_known_args()
@@ -23,13 +23,16 @@ def main():
     targs.insert(0, sys.executable or 'python')
 
     targs.append("--pipeline_config_path")
-    targs.append("faster_rcnn_resnet101_pets.config")
+    targs.append("faster_rcnn.config")
 
     targs.append("--trained_checkpoint_prefix")
     targs.append("%s/%s/model.ckpt-%s" % (args.training_dir, args.train_build_id, args.train_checkpoint))
 
     targs.append("--output_directory")
     targs.append("%s/model/%s" % (args.training_dir, args.train_build_id))
+
+    targs.append("--input_type")
+    targs.append("encoded_image_string_tensor")
 
     call(targs)
 

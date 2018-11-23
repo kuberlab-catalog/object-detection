@@ -65,6 +65,65 @@ spec:
       env:
       - name: PYTHONPATH
         value: /notebooks/research
+  - name: distributed
+    resources:
+    - name: worker
+      replicas: 2
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      images:
+        gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
+        cpu: "kuberlab/tf-object-detection:1.9.0"
+      command: >-
+        TF_CONFIG=$(tf_conf worker --chief_name master) python train.py
+        --research_dir $RESEARCH_DIR
+        --data_dir $DATA_DIR
+        --training_dir $TRAINING_DIR
+        --build_id $BUILD_ID
+      workdir: "$SRC_DIR"
+      resources:
+        accelerators:
+          gpu: 1
+        requests:
+          cpu: 100m
+          memory: 4Gi
+        limits:
+          cpu: 2
+          memory: 32Gi
+      default_volume_mapping: true
+      env:
+      - name: PYTHONPATH
+        value: /notebooks/research
+    - name: ps
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      isPermanent: true
+      images:
+        gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
+        cpu: "kuberlab/tf-object-detection:1.9.0"
+      command: >-
+        TF_CONFIG=$(tf_conf ps --chief_name master) python train.py
+        --research_dir $RESEARCH_DIR
+        --data_dir $DATA_DIR
+        --training_dir $TRAINING_DIR
+        --build_id $BUILD_ID
+      workdir: "$SRC_DIR"
+      resources:
+        accelerators:
+          gpu: 0
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 1
+          memory: 1Gi
+      default_volume_mapping: true
+      env:
+      - name: PYTHONPATH
+        value: /notebooks/research
   uix:
   - name: jupyter
     displayName: Jupyter
@@ -155,6 +214,16 @@ spec:
     clusterStorage: {{ .storage.value }}
   - mountPath: /notebooks/data
     name: data
+    {{- if .dataset.value }}
+    datasetFS:
+      dataset: {{ .dataset.value }}
+      workspace: {{ .dataset.workspace }}
+      version: {{ .dataset.version }}
+    {{- else }}
+    clusterStorage: {{ .storage.value }}
+    {{- end }}
+  - mountPath: /notebooks/pretrained
+    name: pretrained
     {{- if .dataset.value }}
     datasetFS:
       dataset: {{ .dataset.value }}

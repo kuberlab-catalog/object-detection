@@ -7,15 +7,29 @@ def main():
 
 def build_config():
 
+    print('sys.argv:')
+    print(sys.argv)
+
     parser = argparse.ArgumentParser()
+
     parser.add_argument('--data_dir', default='')
     parser.add_argument('--num_steps', default=1000)
+
     parser.add_argument('--resize_min_dimension', type=positive_int, default=600)
     parser.add_argument('--resize_max_dimension', type=positive_int, default=1024)
     parser.add_argument('--resize_fixed_width', type=positive_int, default=0)
     parser.add_argument('--resize_fixed_height', type=positive_int, default=0)
+
     parser.add_argument('--grid_scales', nargs='+', default=[0.25, 0.5, 1.0, 2.0])
     parser.add_argument('--grid_aspect_ratios', nargs='+', default=[0.5, 1.0, 2.0])
+
+    parser.add_argument('--tf_record_train_path', default='')
+    parser.add_argument('--tf_record_test_path', default='')
+    parser.add_argument('--label_map_path', default='')
+
+    parser.add_argument('--use_pretrained_checkpoint', type=str_bool, default=True)
+    parser.add_argument('--pretrained_checkpoint_path', default='')
+
     args, _ = parser.parse_known_args()
 
     targs = {
@@ -27,7 +41,15 @@ def build_config():
         'resize_fixed_height': args.resize_fixed_height,
         'grid_scales': args.grid_scales,
         'grid_aspect_ratios': args.grid_aspect_ratios,
+        'tf_record_train_path': args.tf_record_train_path,
+        'tf_record_test_path': args.tf_record_test_path,
+        'label_map_path': args.label_map_path,
+        'use_pretrained_checkpoint': args.use_pretrained_checkpoint,
+        'pretrained_checkpoint_path': args.pretrained_checkpoint_path,
     }
+
+    print('targs:')
+    print(targs)
 
     if targs['resize_min_dimension'] == 0 or targs['resize_min_dimension'] == 0:
         targs['resize_min_dimension'] = 0
@@ -43,11 +65,20 @@ def build_config():
     if targs['data_dir'] == '':
         raise Exception('data_dir is not set')
 
-    cfg_file = "faster_rcnn_resnet101_pets.config"
-    t = open(cfg_file, "r")
+    if targs['tf_record_train_path'] == '':
+        targs['tf_record_train_path'] = '%s/pet_train_with_masks.record' % targs['data_dir']
+    if targs['tf_record_test_path'] == '':
+        targs['tf_record_test_path'] = '%s/pet_val_with_masks.record' % targs['data_dir']
+    if targs['label_map_path'] == '':
+        targs['label_map_path'] = '%s/pet_label_map.pbtxt' % targs['data_dir']
+
+    if targs['pretrained_checkpoint_path'] == '':
+        targs['pretrained_checkpoint_path'] = '%s/model.ckpt' % targs['data_dir']
+
+    t = open('faster_rcnn.config.template', 'r')
     template = jinja2.Template(t.read())
     t.close()
-    tw = open(cfg_file, "w+")
+    tw = open('faster_rcnn.config', 'w+')
     cfg = str(template.render(args=targs))
     tw.write(cfg)
     tw.close()
@@ -61,6 +92,9 @@ def positive_int(val):
         pass
     finally:
         return ival if ival > 0 else 0
+
+def str_bool(v):
+    return True if v.lower() in ('yes', 'true', 't', 'y', '1') else False
 
 
 if __name__ == '__main__':

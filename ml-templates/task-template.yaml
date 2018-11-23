@@ -12,6 +12,11 @@ resources:
     --resize_fixed_height {{ .resize_fixed_height }}
     --grid_scales {{ join " " .grid_scales }}
     --grid_aspect_ratios {{ join " " .grid_aspect_ratios }}
+    --tf_record_train_path {{ .tf_record_train_path }}
+    --tf_record_test_path {{ .tf_record_test_path }}
+    --label_map_path {{ .label_map_path }}
+    --use_pretrained_checkpoint {{ .use_pretrained_checkpoint }}
+    --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
   default_volume_mapping: true
   images:
     cpu: kuberlab/tensorflow:cpu-36-1.7.0-full

@@ -3,8 +3,7 @@
 ##
 import argparse
 import logging
-import re
-import sys
+import re, sys
 
 from mlboardclient.api import client
 
@@ -56,6 +55,11 @@ def get_parser():
     parser.add_argument('--train_checkpoint')
     parser.add_argument('--grid_scales', nargs='*')
     parser.add_argument('--grid_aspect_ratios', nargs='*')
+    parser.add_argument('--tf_record_train_path')
+    parser.add_argument('--tf_record_test_path')
+    parser.add_argument('--label_map_path')
+    parser.add_argument('--use_pretrained_checkpoint')
+    parser.add_argument('--pretrained_checkpoint_path')
     return parser
 
 
@@ -63,17 +67,19 @@ def main():
     parser = get_parser()
     args, _ = parser.parse_known_args()
 
+    LOG.info(sys.argv)
+
     override_args = {
         '_common': {
             'grid_scales': args.grid_scales,
             'grid_aspect_ratios': args.grid_aspect_ratios,
-        },
-        'train': {
-            'num_steps': args.num_steps,
             'resize_min_dimension': args.resize_min_dimension,
             'resize_max_dimension': args.resize_max_dimension,
             'resize_fixed_width': args.resize_fixed_width,
             'resize_fixed_height': args.resize_fixed_height,
+        },
+        'train': {
+            'num_steps': args.num_steps,
         },
         'export': {
             'model_name': args.model_name,
@@ -100,6 +106,10 @@ def main():
 
         LOG.info("Start task %s..." % t.name)
 
+        resource = t.config['resources'][0]
+        LOG.info(resource['command'])
+        LOG.info(resource['args'])
+
         started = t.start()
 
         LOG.info(
@@ -125,9 +135,11 @@ def main():
             % (completed.name, completed.build, completed.status)
         )
 
-        if t.name == 'train':
+        if completed.name == 'train':
+            completed.refresh()
             train_build_id = completed.build
-            train_checkpoint = args.num_steps
+            if completed.exec_info and 'train_checkpoint' in completed.exec_info:
+                train_checkpoint = completed.exec_info['train_checkpoint']
 
     LOG.info("Workflow completed with status SUCCESS")
 
