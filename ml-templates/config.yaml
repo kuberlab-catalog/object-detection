@@ -226,11 +226,11 @@ spec:
     {{- end }}
   - mountPath: /notebooks/pretrained
     name: pretrained
-    {{- if .dataset.value }}
-    datasetFS:
-      dataset: {{ .dataset.value }}
-      workspace: {{ .dataset.workspace }}
-      version: {{ .dataset.version }}
+    {{- if .pretrained.value }}
+    model:
+      model: {{ .pretrained.value }}
+      workspace: {{ .pretrained.workspace }}
+      version: {{ .pretrained.version }}
     {{- else }}
     clusterStorage: {{ .storage.value }}
     {{- end }}

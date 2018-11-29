@@ -12,6 +12,11 @@ dataset:
     name: "Dataset configuration"
     kind: dataset
 
+pretrained:
+  wizard:
+    name: "Select pretrained model"
+    kind: model
+
 code:
   value: object-detection-code
   workspace: kuberlab-demo
