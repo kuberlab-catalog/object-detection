@@ -198,6 +198,31 @@ spec:
       params:
         - name: inputs
           type: bytes
+      response:
+        - name: detection_boxes
+          type: double
+          shape:
+          - 1
+          - -1
+          - 4
+          description: detected boxes
+        - name: detection_classes
+          type: int
+          shape:
+          - 1
+          - -1
+          description: classes for detected boxes
+        - name: detection_scores
+          type: double
+          shape:
+          - 1
+          - -1
+          description: scores for detected boxes
+        - name: num_detections
+          type: int
+          shape:
+          - 1
+          description: detections quantity
   volumes:
   - mountPath: /notebooks/training
     name: training
