@@ -77,6 +77,11 @@ def main():
             'resize_max_dimension': args.resize_max_dimension,
             'resize_fixed_width': args.resize_fixed_width,
             'resize_fixed_height': args.resize_fixed_height,
+            'tf_record_train_path': args.tf_record_train_path,
+            'tf_record_test_path': args.tf_record_test_path,
+            'label_map_path': args.label_map_path,
+            'use_pretrained_checkpoint': args.use_pretrained_checkpoint,
+            'pretrained_checkpoint_path': args.pretrained_checkpoint_path,
         },
         'train': {
             'num_steps': args.num_steps,
