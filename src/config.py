@@ -13,6 +13,7 @@ def build_config():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--data_dir', default='')
+    parser.add_argument('--num_classes', default=37,type=int)
     parser.add_argument('--num_steps', default=None,type=int)
 
     parser.add_argument('--resize_min_dimension', type=positive_int, default=600)
@@ -37,6 +38,7 @@ def build_config():
     targs = {
         'data_dir': args.data_dir,
         'num_steps': num_steps,
+        'num_classes': args.num_classes,
         'resize_min_dimension': args.resize_min_dimension,
         'resize_max_dimension': args.resize_max_dimension,
         'resize_fixed_width': args.resize_fixed_width,

@@ -6,7 +6,7 @@
 
 model {
   faster_rcnn {
-    num_classes: 37
+    num_classes: {{ args.num_classes }}
     image_resizer {
       {% if args.resize_min_dimension > 0 %}
       keep_aspect_ratio_resizer {

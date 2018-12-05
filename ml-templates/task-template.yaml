@@ -1,8 +1,13 @@
-name: pipeline
+name: train
 resources:
 - workDir: $SRC_DIR
   command: >-
-    python pipeline.py
+    python run.py
+    --research_dir $RESEARCH_DIR
+    --data_dir $DATA_DIR
+    --training_dir $TRAINING_DIR
+    --build_id $BUILD_ID
+    --num_classes {{ .num_classes }}
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
@@ -19,13 +24,13 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
   default_volume_mapping: true
   images:
-    cpu: kuberlab/tensorflow:cpu-36-1.7.0-full
-    gpu: kuberlab/tensorflow:gpu-36-1.7.0-full
+    cpu: kuberlab/tf-object-detection:1.9.0
+    gpu: kuberlab/tf-object-detection:1.9.0-gpu
   name: worker
   replicas: 1
   resources:
     limits:
-      cpu: "1"
+      cpu: "10"
       memory: 8Gi
     requests:
       cpu: 100m

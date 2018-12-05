@@ -12,6 +12,10 @@
   label: Train steps quantity
   type: int
   value: 1000
+- name: num_classes
+  label: Number of classes
+  type: int
+  value: 137
 - label: Resize
   type: group
   elements:
