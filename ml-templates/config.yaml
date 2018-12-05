@@ -34,7 +34,7 @@ spec:
         --tf_record_test_path $DATA_DIR/pet_val_with_masks.record
         --label_map_path $DATA_DIR/pet_label_map.pbtxt
         --use_pretrained_checkpoint false
-        --pretrained_checkpoint_path $DATA_DIR/model.ckpt
+        --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
       workdir: "$SRC_DIR"
       resources:
         accelerators:

@@ -63,7 +63,7 @@
   - name: pretrained_checkpoint_path
     label: Pretrained checkpoint path
     type: string
-    value: "$DATA_DIR/model.ckpt"
+    value: "$PRETRAINED_DIR/model.ckpt"
     width: 66
 - name: grid_scales
   label: Grid generator scales
