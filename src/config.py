@@ -21,8 +21,8 @@ def build_config():
     parser.add_argument('--resize_fixed_width', type=positive_int, default=0)
     parser.add_argument('--resize_fixed_height', type=positive_int, default=0)
 
-    parser.add_argument('--grid_scales', nargs='+', default=[0.25, 0.5, 1.0, 2.0])
-    parser.add_argument('--grid_aspect_ratios', nargs='+', default=[0.5, 1.0, 2.0])
+    parser.add_argument('--grid_scales', nargs='+',type=float,default=[0.25, 0.5, 1.0, 2.0])
+    parser.add_argument('--grid_aspect_ratios', nargs='+',type=float,default=[0.5, 1.0, 2.0])
 
     parser.add_argument('--tf_record_train_path', default='')
     parser.add_argument('--tf_record_test_path', default='')
