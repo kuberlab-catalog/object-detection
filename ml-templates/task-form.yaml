@@ -42,7 +42,7 @@
     value: "$DATA_DIR/pet_train_with_masks.record"
     width: 33
   - name: tf_record_test_path
-    label: TF record tedt path
+    label: TF record test path
     type: string
     value: "$DATA_DIR/pet_val_with_masks.record"
     width: 33
