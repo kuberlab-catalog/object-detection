@@ -13,7 +13,7 @@ def build_config():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--data_dir', default='')
-    parser.add_argument('--num_steps', default=1000)
+    parser.add_argument('--num_steps', default=None,type=int)
 
     parser.add_argument('--resize_min_dimension', type=positive_int, default=600)
     parser.add_argument('--resize_max_dimension', type=positive_int, default=1024)
@@ -31,10 +31,12 @@ def build_config():
     parser.add_argument('--pretrained_checkpoint_path', default='')
 
     args, _ = parser.parse_known_args()
-
+    num_steps = args.num_steps
+    if (num_steps is not None) and num_steps<1:
+        num_steps = None
     targs = {
         'data_dir': args.data_dir,
-        'num_steps': args.num_steps,
+        'num_steps': num_steps,
         'resize_min_dimension': args.resize_min_dimension,
         'resize_max_dimension': args.resize_max_dimension,
         'resize_fixed_width': args.resize_fixed_width,
@@ -75,13 +77,13 @@ def build_config():
     if targs['pretrained_checkpoint_path'] == '':
         targs['pretrained_checkpoint_path'] = '%s/model.ckpt' % targs['data_dir']
 
-    t = open('faster_rcnn.config.template', 'r')
-    template = jinja2.Template(t.read())
-    t.close()
-    tw = open('faster_rcnn.config', 'w+')
-    cfg = str(template.render(args=targs))
-    tw.write(cfg)
-    tw.close()
+    with open('faster_rcnn.config.template', 'r') as t:
+        template = jinja2.Template(t.read())
+
+    with open('faster_rcnn.config', 'w') as tw:
+        cfg = str(template.render(args=targs))
+        tw.write(cfg)
+    return targs
 
 
 def positive_int(val):
