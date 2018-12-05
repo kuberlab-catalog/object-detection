@@ -8,6 +8,16 @@
   type: string
   value: 1.0.0
   width: 50
+- name: use_gpu_training
+  label: Use GPU for training
+  type: boolean
+  value: true
+  width: 33
+- name: use_gpu_evalution
+  label: Use GPU for evalution
+  type: boolean
+  value: true
+  width: 33
 - name: num_steps
   label: Train steps quantity
   type: int

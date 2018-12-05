@@ -29,6 +29,10 @@ resources:
   name: worker
   replicas: 1
   resources:
+    {{- if .use_gpu_training }}
+    accelerators:
+        gpu: 1
+    {{- end }}
     limits:
       cpu: "10"
       memory: 8Gi
