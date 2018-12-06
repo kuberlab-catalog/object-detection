@@ -6,6 +6,9 @@ name: train
 resources:
 - name: worker
   workDir: $SRC_DIR
+  {{- if gt .replicas 1 }}
+  port: 2222
+  {{- end }}
   command: >-
     {{- if gt .replicas 1 }}
     TF_CONFIG=$(tf_conf worker) python run.py
@@ -53,6 +56,7 @@ resources:
 {{- if gt .replicas 1 }}
 - name: ps
   workDir: $SRC_DIR
+  port: 2222
   is_permanent: true
   command: >-
     TF_CONFIG=$(tf_conf ps) python run.py
