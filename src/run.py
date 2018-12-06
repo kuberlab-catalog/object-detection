@@ -95,6 +95,7 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                     if loss is None or loss < v:
                         if model_name is not None and model_version is not None:
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
+                            tf.logging.info('Args: {}', args)
                             export(args)
                         else:
                             tf.logging.info('Skipping model export')
