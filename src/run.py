@@ -4,6 +4,7 @@ import sys
 from mlboardclient.api import client
 import tensorflow as tf
 import os
+import numbers
 
 
 def main():
@@ -78,7 +79,12 @@ def continuous_eval(estimator, model_dir, input_fn, name):
         try:
             eval_results = estimator.evaluate(
                 input_fn=input_fn, steps=None, checkpoint_path=ckpt, name=name)
-            tf.logging.info('Eval results: %s' % eval_results)
+            ##names = ['DetectionBoxes_Precision/mAP','DetectionBoxes_Precision/mAP (large)','']
+            res = {}
+            for k,v in eval_results.items():
+                if isinstance(v, numbers.Number):
+                    res[k] = v
+            tf.logging.info('Eval results: {}'.format(v))
 
             # Terminate eval job when final checkpoint is reached
             current_step = int(os.path.basename(ckpt).split('-')[1])
