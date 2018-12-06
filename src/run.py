@@ -4,6 +4,8 @@ import sys
 from mlboardclient.api import client
 import tensorflow as tf
 import os
+
+
 def main():
     targs = build_config()
     parser = ArgumentParser()
@@ -22,12 +24,12 @@ def main():
     parser.add_argument('--model_version')
     args, _ = parser.parse_known_args()
 
-    with open('faster_rcnn.config','r') as cf:
+    with open('faster_rcnn.config', 'r') as cf:
         data = cf.read()
-        config_html = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">{}</pre></body></html>'.format(data)
+        config_html = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">{}</pre></body></html>'.format(
+            data)
 
-    client.Client().update_task_info({'#documents.config.html':config_html})
-
+    client.Client().update_task_info({'#documents.config.html': config_html})
 
     sys.path.append(args.research_dir)
     from object_detection import model_lib
@@ -47,12 +49,23 @@ def main():
     train_steps = train_and_eval_dict['train_steps']
     eval_input_fns = train_and_eval_dict['eval_input_fns']
     if args.evaluator:
-        continuous_eval(estimator, model_dir, eval_input_fns[0],
-                        train_steps, 'validation_data')
+        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data')
+    elif os.environ.get("TF_CONFIG", '') != '':
+        eval_on_train_input_fn = train_and_eval_dict['eval_on_train_input_fn']
+        predict_input_fn = train_and_eval_dict['predict_input_fn']
+        train_spec, eval_specs = model_lib.create_train_and_eval_specs(
+            train_input_fn,
+            eval_input_fns,
+            eval_on_train_input_fn,
+            predict_input_fn,
+            train_steps,
+            eval_on_train_data=False)
+        tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
     else:
         estimator.train(input_fn=train_input_fn, max_steps=train_steps)
 
-def continuous_eval(estimator, model_dir, input_fn, train_steps, name):
+
+def continuous_eval(estimator, model_dir, input_fn, name):
     def terminate_eval():
         tf.logging.warning('Eval timeout after 180 seconds of no checkpoints')
         return False
@@ -69,14 +82,11 @@ def continuous_eval(estimator, model_dir, input_fn, train_steps, name):
 
             # Terminate eval job when final checkpoint is reached
             current_step = int(os.path.basename(ckpt).split('-')[1])
-            if current_step >= train_steps:
-                tf.logging.info(
-                    'Evaluation finished after training step %d' % current_step)
-                break
 
         except tf.errors.NotFoundError:
             tf.logging.info(
                 'Checkpoint %s no longer exists, skipping checkpoint' % ckpt)
+
 
 if __name__ == '__main__':
     main()
