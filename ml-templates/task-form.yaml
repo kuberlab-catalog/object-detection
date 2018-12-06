@@ -37,7 +37,7 @@
   - name: batch_size
     label: Batch size
     type: int
-    value: 8
+    value: 1
     width: 33
   - name: num_steps
     label: Train steps quantity
@@ -47,12 +47,12 @@
   - name: num_eval_examples
     label: Number examples for evaluation
     type: int
-    value: 10
+    value: 1
     width: 33
   - name: num_classes
     label: Number of classes
     type: int
-    value: 137
+    value: 37
     width: 33
 - label: Resize
   type: group
