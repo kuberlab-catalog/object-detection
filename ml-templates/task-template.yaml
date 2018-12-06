@@ -1,9 +1,57 @@
+{{- if gt .replicas 1 }}
+name: distributed
+{{ -else }}
 name: train
+{{- end }}
 resources:
 - name: worker
   workDir: $SRC_DIR
   command: >-
-    python run.py
+   {{- if gt .replicas 1 }}TF_CONFIG=$(tf_conf worker){{- end }}python run.py
+    --worker
+    --research_dir $RESEARCH_DIR
+    --data_dir $DATA_DIR
+    --training_dir $TRAINING_DIR
+    --build_id $BUILD_ID
+    --num_classes {{ .num_classes }}
+    --model_name {{ .model_name }}
+    --model_version {{ .model_version }}
+    --num_steps {{ .num_steps }}
+    --resize_min_dimension {{ .resize_min_dimension }}
+    --resize_max_dimension {{ .resize_max_dimension }}
+    --resize_fixed_width {{ .resize_fixed_width }}
+    --resize_fixed_height {{ .resize_fixed_height }}
+    --grid_scales {{ join " " .grid_scales }}
+    --grid_aspect_ratios {{ join " " .grid_aspect_ratios }}
+    --tf_record_train_path {{ .tf_record_train_path }}
+    --tf_record_test_path {{ .tf_record_test_path }}
+    --label_map_path {{ .label_map_path }}
+    --use_pretrained_checkpoint {{ .use_pretrained_checkpoint }}
+    --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
+    --num_eval_examples {{ .num_eval_examples }}
+  default_volume_mapping: true
+  images:
+    cpu: kuberlab/tf-object-detection:1.9.0
+    gpu: kuberlab/tf-object-detection:1.9.0-gpu
+  replicas: .replicas
+  resources:
+    {{- if .use_gpu_training }}
+    accelerators:
+        gpu: 1
+    {{- end }}
+    limits:
+      cpu: "10"
+      memory: 8Gi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  restartPolicy: Never
+{{- if gt .replicas 1 }}
+- name: ps
+  workDir: $SRC_DIR
+  is_permanent: true
+  command: >-
+    TF_CONFIG=$(tf_conf ps) python run.py
     --worker
     --research_dir $RESEARCH_DIR
     --data_dir $DATA_DIR
@@ -31,17 +79,14 @@ resources:
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
   replicas: 1
   resources:
-    {{- if .use_gpu_training }}
-    accelerators:
-        gpu: 1
-    {{- end }}
     limits:
       cpu: "10"
       memory: 8Gi
     requests:
       cpu: 100m
       memory: 64Mi
-  restartPolicy: Never
+      restartPolicy: Never
+{{- end }}
 - name: evaluate
   workDir: $SRC_DIR
   is_permanent: true

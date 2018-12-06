@@ -19,6 +19,11 @@
 - label: Training settings
   type: group
   elements:
+  - name: replicas
+    label: Number of worker replicas for training
+    type: int
+    value: 1
+    width: 33
   - name: use_gpu_training
     label: Use GPU for training
     type: boolean
@@ -28,7 +33,7 @@
     label: Use GPU for evaluation
     type: boolean
     value: true
-    width: 66
+    width: 33
   - name: num_steps
     label: Train steps quantity
     type: int
