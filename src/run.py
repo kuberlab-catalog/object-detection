@@ -85,7 +85,6 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
         try:
             eval_results = estimator.evaluate(
                 input_fn=input_fn, steps=None, checkpoint_path=ckpt, name=name)
-            ##names = ['DetectionBoxes_Precision/mAP','DetectionBoxes_Precision/mAP (large)','']
             res = {}
             for k, v in eval_results.items():
                 if isinstance(v, numbers.Number):
@@ -94,10 +93,7 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                     tf.logging.info('Previous loss: {}, current: {}'.format(loss, v))
                     if (loss is None) or loss > v:
                         if model_name is not None and model_version is not None:
-                            tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
-                            tf.logging.info('Args: {}'.format(args))
                             current_step = int(os.path.basename(ckpt).split('-')[1])
-                            tf.logging.info('Checkpoint path: {}, step: {}'.format(ckpt, current_step))
                             export(args.training_dir, args.build_id, current_step, model_name, model_version)
                             loss = v
                         else:
