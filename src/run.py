@@ -95,8 +95,9 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                     if loss is None or loss < v:
                         if model_name is not None and model_version is not None:
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
-                            tf.logging.info('Args: {}', args)
-                            export(args)
+                            tf.logging.info('Args: {}'.format(args))
+                            tf.logging.info('Checkpoint path: {}'.format(ckpt))
+                            export(args.training_dir, args.build_id, ckpt, model_name, model_version)
                         else:
                             tf.logging.info('Skipping model export')
             tf.logging.info('Eval results: {}'.format(res))
