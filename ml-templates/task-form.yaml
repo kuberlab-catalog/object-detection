@@ -96,7 +96,7 @@
   - name: use_pretrained_checkpoint
     label: Use pretrained checkpoint
     type: boolean
-    value: true
+    value: false
     width: 33
   - name: pretrained_checkpoint_path
     label: Pretrained checkpoint path
