@@ -98,7 +98,7 @@ def continuous_eval(estimator, model_dir, input_fn, name, model_name=None, model
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
                         else:
                             tf.logging.info('Skipping model export')
-                tf.logging.info('Eval results: {}'.format(v))
+            tf.logging.info('Eval results: {}'.format(res))
 
             # Terminate eval job when final checkpoint is reached
             current_step = int(os.path.basename(ckpt).split('-')[1])
