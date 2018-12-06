@@ -1,6 +1,6 @@
 {{- if gt .replicas 1 }}
 name: distributed
-{{ -else }}
+{{- else }}
 name: train
 {{- end }}
 resources:
