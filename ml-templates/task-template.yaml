@@ -37,6 +37,9 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
@@ -82,6 +85,9 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
@@ -121,12 +127,15 @@ resources:
     --use_pretrained_checkpoint {{ .use_pretrained_checkpoint }}
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
-    {{ if .export_to_model }}
+    {{- if .export_to_model }}
     --export true
-    {{ else }}
+    {{- else }}
     --export false
-    {{ end }}
+    {{- end }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
