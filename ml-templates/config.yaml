@@ -139,11 +139,7 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        TF_CONFIG=$(tf_conf worker --chief_name master) python train.py
-        --research_dir $RESEARCH_DIR
-        --data_dir $DATA_DIR
-        --training_dir $TRAINING_DIR
-        --build_id $BUILD_ID
+        TF_CONFIG=$(tf_conf worker) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
       workdir: "$SRC_DIR"
       port: 2222
       resources:
@@ -153,8 +149,8 @@ spec:
           cpu: 100m
           memory: 4Gi
         limits:
-          cpu: 2
-          memory: 32Gi
+          cpu: 10
+          memory: 16Gi
       default_volume_mapping: true
       env:
       - name: PYTHONPATH
@@ -169,11 +165,7 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        TF_CONFIG=$(tf_conf ps --chief_name master) python train.py
-        --research_dir $RESEARCH_DIR
-        --data_dir $DATA_DIR
-        --training_dir $TRAINING_DIR
-        --build_id $BUILD_ID
+        TF_CONFIG=$(tf_conf ps) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
       workdir: "$SRC_DIR"
       port: 2222
       resources:
@@ -183,8 +175,8 @@ spec:
           cpu: 50m
           memory: 64Mi
         limits:
-          cpu: 1
-          memory: 1Gi
+          cpu: 10
+          memory: 4Gi
       default_volume_mapping: true
       env:
       - name: PYTHONPATH
