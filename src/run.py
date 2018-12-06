@@ -96,14 +96,15 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                         if model_name is not None and model_version is not None:
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
                             tf.logging.info('Args: {}'.format(args))
-                            tf.logging.info('Checkpoint path: {}'.format(ckpt))
-                            export(args.training_dir, args.build_id, ckpt, model_name, model_version)
+                            current_step = int(os.path.basename(ckpt).split('-')[1])
+                            tf.logging.info('Checkpoint path: {}, step: {}'.format(ckpt, current_step))
+                            export(args.training_dir, args.build_id, current_step, model_name, model_version)
                         else:
                             tf.logging.info('Skipping model export')
             tf.logging.info('Eval results: {}'.format(res))
 
             # Terminate eval job when final checkpoint is reached
-            current_step = int(os.path.basename(ckpt).split('-')[1])
+            # current_step = int(os.path.basename(ckpt).split('-')[1])
 
         except tf.errors.NotFoundError:
             tf.logging.info(

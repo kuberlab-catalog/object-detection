@@ -18,6 +18,7 @@ resources:
     --training_dir $TRAINING_DIR
     --build_id $BUILD_ID
     --num_classes {{ .num_classes }}
+    --export {{ if .export_to_model }}true{{ else }}false{{ end }}
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
@@ -62,6 +63,7 @@ resources:
     --training_dir $TRAINING_DIR
     --build_id $BUILD_ID
     --num_classes {{ .num_classes }}
+    --export {{ if .export_to_model }}true{{ else }}false{{ end }}
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
