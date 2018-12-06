@@ -49,8 +49,7 @@ def main():
     train_steps = train_and_eval_dict['train_steps']
     eval_input_fns = train_and_eval_dict['eval_input_fns']
     if args.evaluator:
-        continuous_eval(estimator, model_dir, eval_input_fns[0],
-                        train_steps, 'validation_data')
+        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data')
     elif os.environ.get("TF_CONFIG", '') != '':
         eval_on_train_input_fn = train_and_eval_dict['eval_on_train_input_fn']
         predict_input_fn = train_and_eval_dict['predict_input_fn']
@@ -66,7 +65,7 @@ def main():
         estimator.train(input_fn=train_input_fn, max_steps=train_steps)
 
 
-def continuous_eval(estimator, model_dir, input_fn, train_steps, name):
+def continuous_eval(estimator, model_dir, input_fn, name):
     def terminate_eval():
         tf.logging.warning('Eval timeout after 180 seconds of no checkpoints')
         return False
@@ -83,10 +82,7 @@ def continuous_eval(estimator, model_dir, input_fn, train_steps, name):
 
             # Terminate eval job when final checkpoint is reached
             current_step = int(os.path.basename(ckpt).split('-')[1])
-            if current_step >= train_steps:
-                tf.logging.info(
-                    'Evaluation finished after training step %d' % current_step)
-                break
+
         except tf.errors.NotFoundError:
             tf.logging.info(
                 'Checkpoint %s no longer exists, skipping checkpoint' % ckpt)
