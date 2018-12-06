@@ -6,6 +6,9 @@ name: train
 resources:
 - name: worker
   workDir: $SRC_DIR
+  {{- if gt .replicas 1 }}
+  port: 2222
+  {{- end }}
   command: >-
     {{- if gt (int .replicas) 1 }}
     TF_CONFIG=$(tf_conf worker) python run.py
@@ -18,7 +21,6 @@ resources:
     --training_dir $TRAINING_DIR
     --build_id $BUILD_ID
     --num_classes {{ .num_classes }}
-    --export {{ if .export_to_model }}true{{ else }}false{{ end }}
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
@@ -57,6 +59,7 @@ resources:
 {{- if gt (int .replicas) 1 }}
 - name: ps
   workDir: $SRC_DIR
+  port: 2222
   is_permanent: true
   command: >-
     TF_CONFIG=$(tf_conf ps) python run.py
@@ -66,7 +69,6 @@ resources:
     --training_dir $TRAINING_DIR
     --build_id $BUILD_ID
     --num_classes {{ .num_classes }}
-    --export {{ if .export_to_model }}true{{ else }}false{{ end }}
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
@@ -125,6 +127,11 @@ resources:
     --use_pretrained_checkpoint {{ .use_pretrained_checkpoint }}
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
+    {{- if .export_to_model }}
+    --export true
+    {{- else }}
+    --export false
+    {{- end }}
   default_volume_mapping: true
   env:
   - name: PYTHONPATH
