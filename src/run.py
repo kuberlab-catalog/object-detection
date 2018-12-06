@@ -92,13 +92,14 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                     res[k] = v
                 if k == 'Loss/total_loss':
                     tf.logging.info('Previous loss: {}, current: {}'.format(loss, v))
-                    if loss is None or loss < v:
+                    if (loss is None) or loss > v:
                         if model_name is not None and model_version is not None:
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
                             tf.logging.info('Args: {}'.format(args))
                             current_step = int(os.path.basename(ckpt).split('-')[1])
                             tf.logging.info('Checkpoint path: {}, step: {}'.format(ckpt, current_step))
                             export(args.training_dir, args.build_id, current_step, model_name, model_version)
+                            loss = v
                         else:
                             tf.logging.info('Skipping model export')
             tf.logging.info('Eval results: {}'.format(res))
@@ -116,14 +117,6 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
     pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
     with tf.gfile.GFile('faster_rcnn.config', 'r') as f:
         text_format.Merge(f.read(), pipeline_config)
-    # text_format.Merge(FLAGS.config_override, pipeline_config)
-    # if FLAGS.input_shape:
-    #     input_shape = [
-    #         int(dim) if dim != '-1' else None
-    #         for dim in FLAGS.input_shape.split(',')
-    #     ]
-    # else:
-    #     input_shape = None
     res = exporter.export_inference_graph(
         'encoded_image_string_tensor', pipeline_config,
         '{}/{}/model.ckpt-{}'.format(training_dir, train_build_id, train_checkpoint),
