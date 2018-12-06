@@ -22,6 +22,7 @@ spec:
         --training_dir $TRAINING_DIR
         --build_id $BUILD_ID
         --num_classes 37
+        --export false
         --model_name pets
         --model_version 1.0.0
         --num_steps 1000
@@ -68,6 +69,7 @@ spec:
         --training_dir $TRAINING_DIR
         --build_id $BUILD_ID
         --num_classes 37
+        --export false
         --model_name pets
         --model_version 1.0.0
         --num_steps 1000

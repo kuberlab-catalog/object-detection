@@ -1,10 +1,9 @@
-from config import build_config
+from config import build_config, str_bool
 from argparse import ArgumentParser
-import sys
+import sys, os, numbers, subprocess
 from mlboardclient.api import client
 import tensorflow as tf
-import os
-import numbers
+from object_detection import model_lib, model_hparams
 
 
 def main():
@@ -21,9 +20,9 @@ def main():
     parser.add_argument('--research_dir')
     parser.add_argument('--build_id')
     parser.add_argument('--only_train', default='False')
+    parser.add_argument('--export', type=str_bool, help='Export model')
     parser.add_argument('--model_name')
     parser.add_argument('--model_version')
-    parser.add_argument('--export', action='store_true', help='Export model')
     args, _ = parser.parse_known_args()
 
     with open('faster_rcnn.config', 'r') as cf:
@@ -34,8 +33,6 @@ def main():
     client.Client().update_task_info({'#documents.config.html': config_html})
 
     sys.path.append(args.research_dir)
-    from object_detection import model_lib
-    from object_detection import model_hparams
     num_steps = targs['num_steps']
     model_dir = '{}/{}'.format(args.training_dir, args.build_id)
     config = tf.estimator.RunConfig(model_dir=model_dir)
@@ -96,6 +93,7 @@ def continuous_eval(estimator, model_dir, input_fn, name, model_name=None, model
                     if loss is None or loss < v:
                         if model_name is not None and model_version is not None:
                             tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
+                            export(args)
                         else:
                             tf.logging.info('Skipping model export')
             tf.logging.info('Eval results: {}'.format(res))
@@ -106,6 +104,39 @@ def continuous_eval(estimator, model_dir, input_fn, name, model_name=None, model
         except tf.errors.NotFoundError:
             tf.logging.info(
                 'Checkpoint %s no longer exists, skipping checkpoint' % ckpt)
+
+
+def export(args):
+
+    targs = sys.argv[:]
+    targs[0] = args.research_dir + '/object_detection/export_inference_graph.py'
+    targs.insert(0, sys.executable or 'python')
+    targs.append("--pipeline_config_path")
+    targs.append("faster_rcnn.config")
+    targs.append("--trained_checkpoint_prefix")
+    targs.append("%s/%s/model.ckpt-%s" % (args.training_dir, args.train_build_id, args.train_checkpoint))
+    targs.append("--output_directory")
+    targs.append("%s/model/%s" % (args.training_dir, args.train_build_id))
+    targs.append("--input_type")
+    targs.append("encoded_image_string_tensor")
+    res = subprocess.call(targs)
+
+    tf.logging.info('Export result: {}'.format(res))
+
+    m = client.Client()
+    m.model_upload(
+        args.model_name,
+        args.model_version,
+        '%s/model/%s/saved_model' % (args.training_dir, args.train_build_id),
+        )
+    m.update_task_info({
+        'model': '#/%s/catalog/mlmodel/%s/versions/%s' % (
+            os.environ['WORKSPACE_NAME'],
+            args.model_name,
+            args.model_version,
+        ),
+    })
+
 
 
 if __name__ == '__main__':
