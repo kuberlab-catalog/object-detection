@@ -66,8 +66,7 @@ def build_config():
 
     if targs['resize_min_dimension'] == 0 and targs['resize_fixed_width'] == 0:
         raise Exception('it should be set positive resize_min_dimension with resize_max_dimension or resize_fixed_width with resize_fixed_height')
-    if targs['num_steps'] == 0:
-        raise Exception('num_steps must be positive')
+
     if targs['data_dir'] == '':
         raise Exception('data_dir is not set')
 
