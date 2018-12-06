@@ -30,6 +30,7 @@ def build_config():
 
     parser.add_argument('--use_pretrained_checkpoint', type=str_bool, default=True)
     parser.add_argument('--pretrained_checkpoint_path', default='')
+    parser.add_argument('--num_eval_examples', type=positive_int, default=10)
 
     args, _ = parser.parse_known_args()
     num_steps = args.num_steps
@@ -50,6 +51,7 @@ def build_config():
         'label_map_path': args.label_map_path,
         'use_pretrained_checkpoint': args.use_pretrained_checkpoint,
         'pretrained_checkpoint_path': args.pretrained_checkpoint_path,
+        'num_eval_examples': args.num_eval_examples,
     }
 
     print('targs:')

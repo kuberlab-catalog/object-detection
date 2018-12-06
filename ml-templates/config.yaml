@@ -36,6 +36,7 @@ spec:
         --label_map_path $DATA_DIR/pet_label_map.pbtxt
         --use_pretrained_checkpoint false
         --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
+        --num_eval_examples 1
       workdir: "$SRC_DIR"
       resources:
         accelerators:

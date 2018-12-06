@@ -22,6 +22,10 @@
   label: Train steps quantity
   type: int
   value: 1000
+- name: num_eval_examples
+  label: Number examples for evalution
+  type: int
+  value: 10
 - name: num_classes
   label: Number of classes
   type: int

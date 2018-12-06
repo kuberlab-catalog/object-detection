@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import sys
 from mlboardclient.api import client
 import tensorflow as tf
+import os
 def main():
     targs = build_config()
     parser = ArgumentParser()

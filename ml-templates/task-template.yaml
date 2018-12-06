@@ -23,6 +23,7 @@ resources:
     --label_map_path {{ .label_map_path }}
     --use_pretrained_checkpoint {{ .use_pretrained_checkpoint }}
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
+    --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
