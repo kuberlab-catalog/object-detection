@@ -89,7 +89,7 @@ model {
 }
 
 train_config: {
-  batch_size: 1
+  batch_size: {{ args.batch_size }}
   optimizer {
     momentum_optimizer: {
       learning_rate: {
@@ -134,6 +134,7 @@ train_input_reader: {
 }
 
 eval_config: {
+  batch_size: {{ args.batch_size }}
   metrics_set: "coco_detection_metrics"
   num_examples: {{ args.num_eval_examples }}
   # Note: The below line limits the evaluation process to 10 evaluations.

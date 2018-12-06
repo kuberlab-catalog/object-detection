@@ -38,6 +38,7 @@ spec:
         --use_pretrained_checkpoint false
         --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
         --num_eval_examples 1
+        --batch_size 1
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -85,6 +86,7 @@ spec:
         --use_pretrained_checkpoint false
         --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
         --num_eval_examples 1
+        --batch_size 1
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -110,7 +112,7 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        TF_CONFIG=$(tf_conf worker) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
+        TF_CONFIG=$(tf_conf worker) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt --batch_size 1
       workdir: "$SRC_DIR"
       port: 2222
       resources:
@@ -136,7 +138,7 @@ spec:
         gpu: "kuberlab/tf-object-detection:1.9.0-gpu"
         cpu: "kuberlab/tf-object-detection:1.9.0"
       command: >-
-        TF_CONFIG=$(tf_conf ps) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
+        TF_CONFIG=$(tf_conf ps) python run.py --worker --research_dir $RESEARCH_DIR --data_dir $DATA_DIR --training_dir $TRAINING_DIR --build_id $BUILD_ID --num_classes 1 --model_name text-detection --model_version 1.0.0 --num_steps 100000 --resize_min_dimension 600 --resize_max_dimension 1024 --resize_fixed_width 0 --resize_fixed_height 0 --grid_scales 0.25 0.5 1 2 --grid_aspect_ratios 1 2 3 5 7 10 --tf_record_train_path $DATA_DIR/train.record --tf_record_test_path $DATA_DIR/test.record --label_map_path $DATA_DIR/idcar_label_map.pbtxt --use_pretrained_checkpoint true --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt --batch_size 1
       workdir: "$SRC_DIR"
       port: 2222
       resources:
@@ -184,6 +186,7 @@ spec:
         --use_pretrained_checkpoint false
         --pretrained_checkpoint_path $PRETRAINED_DIR/model.ckpt
         --num_eval_examples 1
+        --batch_size 1
       workdir: "$SRC_DIR"
       resources:
         accelerators:

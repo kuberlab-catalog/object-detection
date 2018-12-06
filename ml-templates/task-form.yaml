@@ -34,6 +34,11 @@
     type: boolean
     value: true
     width: 33
+  - name: batch_size
+    label: Batch size
+    type: int
+    value: 8
+    width: 33
   - name: num_steps
     label: Train steps quantity
     type: int

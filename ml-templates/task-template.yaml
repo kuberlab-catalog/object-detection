@@ -24,6 +24,7 @@ resources:
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
+    --batch_size {{ .batch_size }}
     --resize_min_dimension {{ .resize_min_dimension }}
     --resize_max_dimension {{ .resize_max_dimension }}
     --resize_fixed_width {{ .resize_fixed_width }}
@@ -72,6 +73,7 @@ resources:
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
+    --batch_size {{ .batch_size }}
     --resize_min_dimension {{ .resize_min_dimension }}
     --resize_max_dimension {{ .resize_max_dimension }}
     --resize_fixed_width {{ .resize_fixed_width }}
@@ -115,6 +117,7 @@ resources:
     --model_name {{ .model_name }}
     --model_version {{ .model_version }}
     --num_steps {{ .num_steps }}
+    --batch_size {{ .batch_size }}
     --resize_min_dimension {{ .resize_min_dimension }}
     --resize_max_dimension {{ .resize_max_dimension }}
     --resize_fixed_width {{ .resize_fixed_width }}

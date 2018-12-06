@@ -15,7 +15,7 @@ def build_config():
     parser.add_argument('--data_dir', default='')
     parser.add_argument('--num_classes', default=37,type=int)
     parser.add_argument('--num_steps', default=None,type=int)
-
+    parser.add_argument('--batch_size', default=1,type=int)
     parser.add_argument('--resize_min_dimension', type=positive_int, default=600)
     parser.add_argument('--resize_max_dimension', type=positive_int, default=1024)
     parser.add_argument('--resize_fixed_width', type=positive_int, default=0)
@@ -52,6 +52,7 @@ def build_config():
         'use_pretrained_checkpoint': args.use_pretrained_checkpoint,
         'pretrained_checkpoint_path': args.pretrained_checkpoint_path,
         'num_eval_examples': args.num_eval_examples,
+        'batch_size': args.batch_size,
     }
 
     # print('targs:')
