@@ -1,10 +1,12 @@
 from config import build_config, str_bool
 from argparse import ArgumentParser
-import sys, os, numbers, subprocess
+import sys, os, numbers
 from mlboardclient.api import client
 import tensorflow as tf
-from object_detection import model_lib, model_hparams
+from object_detection import model_lib, model_hparams, exporter
 
+from object_detection.protos import pipeline_pb2
+from google.protobuf import text_format
 
 def main():
     targs = build_config()
@@ -53,7 +55,7 @@ def main():
         if args.export:
             model_name = args.model_name
             model_version = args.model_version
-        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data', model_name, model_version)
+        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data', args, model_name, model_version)
     elif os.environ.get("TF_CONFIG", '') != '':
         eval_on_train_input_fn = train_and_eval_dict['eval_on_train_input_fn']
         predict_input_fn = train_and_eval_dict['predict_input_fn']
@@ -69,7 +71,7 @@ def main():
         estimator.train(input_fn=train_input_fn, max_steps=train_steps)
 
 
-def continuous_eval(estimator, model_dir, input_fn, name, model_name=None, model_version=None):
+def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None, model_version=None):
     def terminate_eval():
         tf.logging.warning('Eval timeout after 180 seconds of no checkpoints')
         return False
@@ -106,34 +108,40 @@ def continuous_eval(estimator, model_dir, input_fn, name, model_name=None, model
                 'Checkpoint %s no longer exists, skipping checkpoint' % ckpt)
 
 
-def export(args):
+def export(training_dir, train_build_id, train_checkpoint, model_name, model_version):
 
-    targs = sys.argv[:]
-    targs[0] = args.research_dir + '/object_detection/export_inference_graph.py'
-    targs.insert(0, sys.executable or 'python')
-    targs.append("--pipeline_config_path")
-    targs.append("faster_rcnn.config")
-    targs.append("--trained_checkpoint_prefix")
-    targs.append("%s/%s/model.ckpt-%s" % (args.training_dir, args.train_build_id, args.train_checkpoint))
-    targs.append("--output_directory")
-    targs.append("%s/model/%s" % (args.training_dir, args.train_build_id))
-    targs.append("--input_type")
-    targs.append("encoded_image_string_tensor")
-    res = subprocess.call(targs)
+    pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
+    with tf.gfile.GFile('faster_rcnn.config', 'r') as f:
+        text_format.Merge(f.read(), pipeline_config)
+    # text_format.Merge(FLAGS.config_override, pipeline_config)
+    # if FLAGS.input_shape:
+    #     input_shape = [
+    #         int(dim) if dim != '-1' else None
+    #         for dim in FLAGS.input_shape.split(',')
+    #     ]
+    # else:
+    #     input_shape = None
+    res = exporter.export_inference_graph(
+        'encoded_image_string_tensor', pipeline_config,
+        '{}/{}/model.ckpt-{}'.format(training_dir, train_build_id, train_checkpoint),
+        '{}/model/{}'.format(training_dir, train_build_id),
+        # write_inference_graph=FLAGS.write_inference_graph,
+    )
+
 
     tf.logging.info('Export result: {}'.format(res))
 
     m = client.Client()
     m.model_upload(
-        args.model_name,
-        args.model_version,
-        '%s/model/%s/saved_model' % (args.training_dir, args.train_build_id),
+        model_name,
+        model_version,
+        '{}/model/{}/saved_model'.format(training_dir, train_build_id),
         )
     m.update_task_info({
         'model': '#/%s/catalog/mlmodel/%s/versions/%s' % (
             os.environ['WORKSPACE_NAME'],
-            args.model_name,
-            args.model_version,
+            model_name,
+            model_version,
         ),
     })
 
