@@ -3,6 +3,7 @@ resources:
 - workDir: $SRC_DIR
   command: >-
     python run.py
+    --worker
     --research_dir $RESEARCH_DIR
     --data_dir $DATA_DIR
     --training_dir $TRAINING_DIR
