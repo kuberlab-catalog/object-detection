@@ -7,8 +7,8 @@ def main():
 
 def build_config():
 
-    print('sys.argv:')
-    print(sys.argv)
+    # print('sys.argv:')
+    # print(sys.argv)
 
     parser = argparse.ArgumentParser()
 
@@ -21,8 +21,8 @@ def build_config():
     parser.add_argument('--resize_fixed_width', type=positive_int, default=0)
     parser.add_argument('--resize_fixed_height', type=positive_int, default=0)
 
-    parser.add_argument('--grid_scales', nargs='+',type=float,default=[0.25, 0.5, 1.0, 2.0])
-    parser.add_argument('--grid_aspect_ratios', nargs='+',type=float,default=[0.5, 1.0, 2.0])
+    parser.add_argument('--grid_scales', nargs='+', type=float, default=[0.25, 0.5, 1.0, 2.0])
+    parser.add_argument('--grid_aspect_ratios', nargs='+', type=float, default=[0.5, 1.0, 2.0])
 
     parser.add_argument('--tf_record_train_path', default='')
     parser.add_argument('--tf_record_test_path', default='')
@@ -54,8 +54,8 @@ def build_config():
         'num_eval_examples': args.num_eval_examples,
     }
 
-    print('targs:')
-    print(targs)
+    # print('targs:')
+    # print(targs)
 
     if targs['resize_min_dimension'] == 0 or targs['resize_min_dimension'] == 0:
         targs['resize_min_dimension'] = 0

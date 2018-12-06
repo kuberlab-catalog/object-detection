@@ -1,11 +1,12 @@
-from config import build_config
+from config import build_config, str_bool
 from argparse import ArgumentParser
-import sys
+import sys, os, numbers
 from mlboardclient.api import client
 import tensorflow as tf
-import os
-import numbers
+from object_detection import model_lib, model_hparams, exporter
 
+from object_detection.protos import pipeline_pb2
+from google.protobuf import text_format
 
 def main():
     targs = build_config()
@@ -21,6 +22,7 @@ def main():
     parser.add_argument('--research_dir')
     parser.add_argument('--build_id')
     parser.add_argument('--only_train', default='False')
+    parser.add_argument('--export', type=str_bool, help='Export model')
     parser.add_argument('--model_name')
     parser.add_argument('--model_version')
     args, _ = parser.parse_known_args()
@@ -33,8 +35,6 @@ def main():
     client.Client().update_task_info({'#documents.config.html': config_html})
 
     sys.path.append(args.research_dir)
-    from object_detection import model_lib
-    from object_detection import model_hparams
     num_steps = targs['num_steps']
     model_dir = '{}/{}'.format(args.training_dir, args.build_id)
     config = tf.estimator.RunConfig(model_dir=model_dir)
@@ -50,7 +50,12 @@ def main():
     train_steps = train_and_eval_dict['train_steps']
     eval_input_fns = train_and_eval_dict['eval_input_fns']
     if args.evaluator:
-        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data')
+        model_name = None
+        model_version = None
+        if args.export:
+            model_name = args.model_name
+            model_version = args.model_version
+        continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data', args, model_name, model_version)
     elif os.environ.get("TF_CONFIG", '') != '':
         eval_on_train_input_fn = train_and_eval_dict['eval_on_train_input_fn']
         predict_input_fn = train_and_eval_dict['predict_input_fn']
@@ -66,7 +71,7 @@ def main():
         estimator.train(input_fn=train_input_fn, max_steps=train_steps)
 
 
-def continuous_eval(estimator, model_dir, input_fn, name):
+def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None, model_version=None):
     def terminate_eval():
         tf.logging.warning('Eval timeout after 180 seconds of no checkpoints')
         return False
@@ -76,22 +81,73 @@ def continuous_eval(estimator, model_dir, input_fn, name):
             timeout_fn=terminate_eval):
 
         tf.logging.info('Starting Evaluation.')
+        loss = None
         try:
             eval_results = estimator.evaluate(
                 input_fn=input_fn, steps=None, checkpoint_path=ckpt, name=name)
             ##names = ['DetectionBoxes_Precision/mAP','DetectionBoxes_Precision/mAP (large)','']
             res = {}
-            for k,v in eval_results.items():
+            for k, v in eval_results.items():
                 if isinstance(v, numbers.Number):
                     res[k] = v
-            tf.logging.info('Eval results: {}'.format(v))
+                if k == 'Loss/total_loss':
+                    tf.logging.info('Previous loss: {}, current: {}'.format(loss, v))
+                    if loss is None or loss < v:
+                        if model_name is not None and model_version is not None:
+                            tf.logging.info('Starting export to model {}:{}'.format(model_name, model_version))
+                            tf.logging.info('Args: {}'.format(args))
+                            current_step = int(os.path.basename(ckpt).split('-')[1])
+                            tf.logging.info('Checkpoint path: {}, step: {}'.format(ckpt, current_step))
+                            export(args.training_dir, args.build_id, current_step, model_name, model_version)
+                        else:
+                            tf.logging.info('Skipping model export')
+            tf.logging.info('Eval results: {}'.format(res))
 
             # Terminate eval job when final checkpoint is reached
-            current_step = int(os.path.basename(ckpt).split('-')[1])
+            # current_step = int(os.path.basename(ckpt).split('-')[1])
 
         except tf.errors.NotFoundError:
             tf.logging.info(
                 'Checkpoint %s no longer exists, skipping checkpoint' % ckpt)
+
+
+def export(training_dir, train_build_id, train_checkpoint, model_name, model_version):
+
+    pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
+    with tf.gfile.GFile('faster_rcnn.config', 'r') as f:
+        text_format.Merge(f.read(), pipeline_config)
+    # text_format.Merge(FLAGS.config_override, pipeline_config)
+    # if FLAGS.input_shape:
+    #     input_shape = [
+    #         int(dim) if dim != '-1' else None
+    #         for dim in FLAGS.input_shape.split(',')
+    #     ]
+    # else:
+    #     input_shape = None
+    res = exporter.export_inference_graph(
+        'encoded_image_string_tensor', pipeline_config,
+        '{}/{}/model.ckpt-{}'.format(training_dir, train_build_id, train_checkpoint),
+        '{}/model/{}'.format(training_dir, train_build_id),
+        # write_inference_graph=FLAGS.write_inference_graph,
+    )
+
+
+    tf.logging.info('Export result: {}'.format(res))
+
+    m = client.Client()
+    m.model_upload(
+        model_name,
+        model_version,
+        '{}/model/{}/saved_model'.format(training_dir, train_build_id),
+        )
+    m.update_task_info({
+        'model': '#/%s/catalog/mlmodel/%s/versions/%s' % (
+            os.environ['WORKSPACE_NAME'],
+            model_name,
+            model_version,
+        ),
+    })
+
 
 
 if __name__ == '__main__':
