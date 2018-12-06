@@ -74,7 +74,7 @@ resources:
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
   replicas: 1
   resources:
-    {{- if .use_gpu_evalution }}
+    {{- if .use_gpu_evaluation }}
     accelerators:
       gpu: 1
     {{- end }}

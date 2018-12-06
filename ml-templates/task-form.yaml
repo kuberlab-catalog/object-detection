@@ -1,35 +1,49 @@
-- name: model_name
-  label: Export to model
-  type: string
-  value: object-detection
-  width: 50
-- name: model_version
-  label: Model version
-  type: string
-  value: 1.0.0
-  width: 50
-- name: use_gpu_training
-  label: Use GPU for training
-  type: boolean
-  value: true
-  width: 33
-- name: use_gpu_evalution
-  label: Use GPU for evalution
-  type: boolean
-  value: true
-  width: 33
-- name: num_steps
-  label: Train steps quantity
-  type: int
-  value: 1000
-- name: num_eval_examples
-  label: Number examples for evalution
-  type: int
-  value: 10
-- name: num_classes
-  label: Number of classes
-  type: int
-  value: 137
+- label: Export settings
+  type: group
+  elements:
+  - name: export_to_model
+    label: Export to model
+    type: boolean
+    value: true
+    width: 33
+  - name: model_name
+    label: Model name
+    type: string
+    value: object-detection
+    width: 33
+  - name: model_version
+    label: Model version
+    type: string
+    value: 1.0.0
+    width: 33
+- label: Training settings
+  type: group
+  elements:
+  - name: use_gpu_training
+    label: Use GPU for training
+    type: boolean
+    value: true
+    width: 33
+  - name: use_gpu_evaluation
+    label: Use GPU for evaluation
+    type: boolean
+    value: true
+    width: 66
+  - name: num_steps
+    label: Train steps quantity
+    type: int
+    value: 1000
+    width: 33
+  - name: num_eval_examples
+    label: Number examples for evaluation
+    type: int
+    value: 10
+    width: 33
+  - name: num_classes
+    label: Number of classes
+    type: int
+    value: 137
+    width: 33
 - label: Resize
   type: group
   elements:
@@ -57,17 +71,17 @@
   - name: tf_record_train_path
     label: TF record train path
     type: string
-    value: "$DATA_DIR/pet_train_with_masks.record"
+    value: $DATA_DIR/pet_train_with_masks.record
     width: 33
   - name: tf_record_test_path
     label: TF record test path
     type: string
-    value: "$DATA_DIR/pet_val_with_masks.record"
+    value: $DATA_DIR/pet_val_with_masks.record
     width: 33
   - name: label_map_path
     label: Labels map
     type: string
-    value: "$DATA_DIR/pet_label_map.pbtxt"
+    value: $DATA_DIR/pet_label_map.pbtxt
     width: 33
   - name: use_pretrained_checkpoint
     label: Use pretrained checkpoint
@@ -77,7 +91,7 @@
   - name: pretrained_checkpoint_path
     label: Pretrained checkpoint path
     type: string
-    value: "$PRETRAINED_DIR/model.ckpt"
+    value: $PRETRAINED_DIR/model.ckpt
     width: 66
 - name: grid_scales
   label: Grid generator scales
