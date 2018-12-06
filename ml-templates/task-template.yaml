@@ -1,4 +1,4 @@
-{{- if gt .replicas 1 }}
+{{- if gt (int .replicas) 1 }}
 name: distributed
 {{- else }}
 name: train
@@ -7,7 +7,7 @@ resources:
 - name: worker
   workDir: $SRC_DIR
   command: >-
-    {{- if gt .replicas 1 }}
+    {{- if gt (int .replicas) 1 }}
     TF_CONFIG=$(tf_conf worker) python run.py
     {{- else }}
     python run.py
@@ -35,10 +35,13 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
-  replicas: {{ .replicas }}
+  replicas: {{ int .replicas }}
   resources:
     {{- if .use_gpu_training }}
     accelerators:
@@ -51,7 +54,7 @@ resources:
       cpu: 100m
       memory: 64Mi
   restartPolicy: Never
-{{- if gt .replicas 1 }}
+{{- if gt (int .replicas) 1 }}
 - name: ps
   workDir: $SRC_DIR
   is_permanent: true
@@ -80,6 +83,9 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
@@ -120,6 +126,9 @@ resources:
     --pretrained_checkpoint_path {{ .pretrained_checkpoint_path }}
     --num_eval_examples {{ .num_eval_examples }}
   default_volume_mapping: true
+  env:
+  - name: PYTHONPATH
+    value: /notebooks/research
   images:
     cpu: kuberlab/tf-object-detection:1.9.0
     gpu: kuberlab/tf-object-detection:1.9.0-gpu
