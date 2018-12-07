@@ -77,12 +77,12 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
         tf.logging.warning('Eval timeout after 180 seconds of no checkpoints')
         return False
 
+    loss = None
     for ckpt in tf.contrib.training.checkpoints_iterator(
             model_dir, min_interval_secs=180, timeout=None,
             timeout_fn=terminate_eval):
 
         tf.logging.info('Starting Evaluation.')
-        loss = None
         try:
             eval_results = estimator.evaluate(
                 input_fn=input_fn, steps=None, checkpoint_path=ckpt, name=name)
