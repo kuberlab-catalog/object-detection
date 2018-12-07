@@ -90,14 +90,15 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                 if isinstance(v, numbers.Number):
                     res[k] = v
                 if k == 'Loss/total_loss':
-                    tf.logging.info('Previous loss: {}, current: {}'.format(loss, v))
+                    tf.logging.info('!!!!! Previous loss: {}, current: {}'.format(loss, v))
                     if (loss is None) or loss > v:
                         if model_name is not None and model_version is not None:
                             current_step = int(os.path.basename(ckpt).split('-')[1])
+                            tf.logging.info('!!!!! Start exporting, step: {}'.format(current_step))
                             export(args.training_dir, args.build_id, current_step, model_name, model_version)
                             loss = v
                         else:
-                            tf.logging.info('Skipping model export')
+                            tf.logging.info('!!!!! Skipping model export')
             tf.logging.info('Eval results: {}'.format(res))
 
             # Terminate eval job when final checkpoint is reached
@@ -113,6 +114,7 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
     pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
     with tf.gfile.GFile('faster_rcnn.config', 'r') as f:
         text_format.Merge(f.read(), pipeline_config)
+    tf.logging.info('!!!!! Continue exporting, train_checkpoint: {}'.format(train_checkpoint))
     res = exporter.export_inference_graph(
         'encoded_image_string_tensor', pipeline_config,
         '{}/{}/model.ckpt-{}'.format(training_dir, train_build_id, train_checkpoint),
@@ -121,7 +123,7 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
     )
 
 
-    tf.logging.info('Export result: {}'.format(res))
+    tf.logging.info('!!!!! Export result: {}'.format(res))
 
     m = client.Client()
     m.model_upload(
