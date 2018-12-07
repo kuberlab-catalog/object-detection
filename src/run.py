@@ -134,8 +134,6 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
 
 def export_subprocess(research_dir, training_dir, train_build_id, train_checkpoint, model_name, model_version):
 
-    tf.logging.info('!!!!! Export subprocess start.')
-
     args = [
         sys.executable or 'python',
         research_dir + '/object_detection/export_inference_graph.py',
@@ -152,6 +150,7 @@ def export_subprocess(research_dir, training_dir, train_build_id, train_checkpoi
         '--output_directory',
         '%s/model/%s' % (training_dir, train_build_id),
     ]
+    tf.logging.info('!!!!! Export subprocess start: {}'.format(args))
 
     res = call(args)
 
