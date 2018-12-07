@@ -139,27 +139,51 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
 
 def export_subprocess(research_dir, training_dir, train_build_id, train_checkpoint, model_name, model_version):
 
-    args = [
-        sys.executable or 'python',
-        research_dir + '/object_detection/export_inference_graph.py',
+    targs = sys.argv[:]
 
-        '--input_type',
-        'encoded_image_string_tensor',
+    targs[0] = research_dir + '/object_detection/export_inference_graph.py'
+    targs.insert(0, sys.executable or 'python')
 
-        '--pipeline_config_path',
-        'faster_rcnn.config',
+    targs.append("--pipeline_config_path")
+    targs.append("faster_rcnn.config")
 
-        '--trained_checkpoint_prefix',
-        '%s/%s/model.ckpt-%s' % (training_dir, train_build_id, train_checkpoint),
+    targs.append("--trained_checkpoint_prefix")
+    targs.append("%s/%s/model.ckpt-%s" % (training_dir, train_build_id, train_checkpoint))
 
-        '--output_directory',
-        '%s/model/%s' % (training_dir, train_build_id),
-    ]
-    tf.logging.info('!!!!! Export subprocess start: {}'.format(args))
+    targs.append("--output_directory")
+    targs.append("%s/model/%s" % (training_dir, train_build_id))
 
-    res = call(args)
+    targs.append("--input_type")
+    targs.append("encoded_image_string_tensor")
+
+    tf.logging.info('!!!!! Export subprocess start: {}'.format(targs))
+
+    res = call(targs)
 
     tf.logging.info('!!!!! Export subprocess result: {}'.format(res))
+
+
+    # args = [
+    #     sys.executable or 'python',
+    #     research_dir + '/object_detection/export_inference_graph.py',
+    #
+    #     '--input_type',
+    #     'encoded_image_string_tensor',
+    #
+    #     '--pipeline_config_path',
+    #     'faster_rcnn.config',
+    #
+    #     '--trained_checkpoint_prefix',
+    #     '%s/%s/model.ckpt-%s' % (training_dir, train_build_id, train_checkpoint),
+    #
+    #     '--output_directory',
+    #     '%s/model/%s' % (training_dir, train_build_id),
+    # ]
+    # tf.logging.info('!!!!! Export subprocess start: {}'.format(args))
+    #
+    # res = call(args)
+    #
+    # tf.logging.info('!!!!! Export subprocess result: {}'.format(res))
 
     after_export(training_dir, train_build_id, model_name, model_version)
 
