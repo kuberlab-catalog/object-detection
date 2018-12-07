@@ -4,6 +4,7 @@ import sys, os, numbers
 from mlboardclient.api import client
 import tensorflow as tf
 from object_detection import model_lib, model_hparams, exporter
+from subprocess import call
 
 from object_detection.protos import pipeline_pb2
 from google.protobuf import text_format
@@ -95,7 +96,11 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                         if model_name is not None and model_version is not None:
                             current_step = int(os.path.basename(ckpt).split('-')[1])
                             tf.logging.info('!!!!! Start exporting, step: {}'.format(current_step))
-                            export(args.training_dir, args.build_id, current_step, model_name, model_version)
+                            # export(args.training_dir, args.build_id, current_step, model_name, model_version)
+                            export_subprocess(
+                                args.research_dir, args.training_dir, args.build_id,
+                                current_step, model_name, model_version,
+                            )
                             loss = v
                         else:
                             tf.logging.info('!!!!! Skipping model export')
@@ -122,15 +127,47 @@ def export(training_dir, train_build_id, train_checkpoint, model_name, model_ver
         # write_inference_graph=FLAGS.write_inference_graph,
     )
 
-
     tf.logging.info('!!!!! Export result: {}'.format(res))
+
+    after_export(training_dir, train_build_id, model_name, model_version)
+
+
+def export_subprocess(research_dir, training_dir, train_build_id, train_checkpoint, model_name, model_version):
+
+    tf.logging.info('!!!!! Export subprocess start.')
+
+    args = [
+        sys.executable or 'python',
+        research_dir + '/object_detection/export_inference_graph.py',
+
+        '--input_type',
+        'encoded_image_string_tensor',
+
+        '--pipeline_config_path',
+        'faster_rcnn.config',
+
+        '--trained_checkpoint_prefix',
+        '%s/%s/model.ckpt-%s' % (training_dir, train_build_id, train_checkpoint),
+
+        '--output_directory',
+        '%s/model/%s' % (training_dir, train_build_id),
+    ]
+
+    res = call(args)
+
+    tf.logging.info('!!!!! Export subprocess result: {}'.format(res))
+
+    after_export(training_dir, train_build_id, model_name, model_version)
+
+
+def after_export(training_dir, train_build_id, model_name, model_version):
 
     m = client.Client()
     m.model_upload(
         model_name,
         model_version,
         '{}/model/{}/saved_model'.format(training_dir, train_build_id),
-        )
+    )
     m.update_task_info({
         'model': '#/%s/catalog/mlmodel/%s/versions/%s' % (
             os.environ['WORKSPACE_NAME'],
