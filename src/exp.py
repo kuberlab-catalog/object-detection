@@ -14,7 +14,7 @@ def main():
             data)
     client.Client().update_task_info({'#documents.config.html': config_html})
 
-parser = ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument('--training_dir')
     parser.add_argument('--research_dir')
     parser.add_argument('--model_name', default="object-detection")
