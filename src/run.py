@@ -51,6 +51,7 @@ def main():
     train_steps = train_and_eval_dict['train_steps']
     eval_input_fns = train_and_eval_dict['eval_input_fns']
     if args.evaluator:
+        tf.logging.info('Starting Evaluation.')
         model_name = None
         model_version = None
         if args.export:
@@ -58,6 +59,7 @@ def main():
             model_version = args.model_version
         continuous_eval(estimator, model_dir, eval_input_fns[0], 'validation_data', args, model_name, model_version)
     elif os.environ.get("TF_CONFIG", '') != '':
+        tf.logging.info('Starting Distributed.')
         eval_on_train_input_fn = train_and_eval_dict['eval_on_train_input_fn']
         predict_input_fn = train_and_eval_dict['predict_input_fn']
         train_spec, eval_specs = model_lib.create_train_and_eval_specs(
@@ -69,6 +71,7 @@ def main():
             eval_on_train_data=False)
         tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
     else:
+        tf.logging.info('Starting Training.')
         estimator.train(input_fn=train_input_fn, max_steps=train_steps)
 
 
