@@ -312,6 +312,8 @@ spec:
     default_volume_mapping: true
     spec:
       outMimeType: image/png
+      outFilter:
+      - output
       rawInput: true
       model: any
       params:
