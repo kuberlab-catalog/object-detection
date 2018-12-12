@@ -1,13 +1,20 @@
 from run import export_subprocess
 from argparse import ArgumentParser
 from config import build_config
+from mlboardclient.api import client
 
 
 def main():
 
     build_config()
 
-    parser = ArgumentParser()
+    with open('faster_rcnn.config', 'r') as cf:
+        data = cf.read()
+        config_html = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">{}</pre></body></html>'.format(
+            data)
+    client.Client().update_task_info({'#documents.config.html': config_html})
+
+parser = ArgumentParser()
     parser.add_argument('--training_dir')
     parser.add_argument('--research_dir')
     parser.add_argument('--model_name', default="object-detection")
