@@ -280,8 +280,21 @@ spec:
     images:
       gpu: "kuberlab/serving:latest-gpu"
       cpu: "kuberlab/serving:latest"
-    command: 'kuberlab-serving --port={{ .serving_port }} --model-path=/model'
+    command: >-
+      kuberlab-serving --port={{ .serving_port }} --model-path=/model --hooks serving_hook.py
+      -o label_map=$DATA_DIR/pet_label_map.pbtxt -o skip_labels=true
+      -o skip_scores=true -o line_thickness=2 -o max_boxes=50 -o threshold=0.5
     workdir: "$SRC_DIR"
+    sources:
+    - name: src
+      gitRepo:
+        repository: https://github.com/kuberlab-catalog/object-detection
+      subPath: object-detection/src
+    - name: data
+      datasetFS:
+        workspace: kuberlab-demo
+        version: 1.0.0
+        dataset: object-detection-pets
     resources:
       accelerators:
         gpu: 0
@@ -298,13 +311,15 @@ spec:
       name: grpc
     default_volume_mapping: true
     spec:
-      outMimeType: text/plain
+      outMimeType: image/png
       rawInput: true
       model: any
       params:
         - name: inputs
           type: bytes
       response:
+        - name: output
+          type: bytes
         - name: detection_boxes
           type: double
           shape:
