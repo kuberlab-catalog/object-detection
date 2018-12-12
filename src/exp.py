@@ -19,11 +19,11 @@ def main():
     parser.add_argument('--research_dir')
     parser.add_argument('--model_name', default="object-detection")
     parser.add_argument('--model_version', default="1.0.0")
-    parser.add_argument('--train_build_id')
-    parser.add_argument('--train_checkpoint')
+    parser.add_argument('--build_id')
+    parser.add_argument('--num_steps')
     args, _ = parser.parse_known_args()
 
-    export_subprocess(args.research_dir, args.training_dir, args.train_build_id, args.train_checkpoint, args.model_name, args.model_version)
+    export_subprocess(args.research_dir, args.training_dir, args.build_id, args.num_steps, args.model_name, args.model_version)
 
 
 if __name__ == '__main__':
