@@ -98,14 +98,14 @@ def continuous_eval(estimator, model_dir, input_fn, name, args, model_name=None,
                     if (loss is None) or loss > v:
                         if model_name is not None and model_version is not None:
                             current_step = int(os.path.basename(ckpt).split('-')[1])
-                            export(args.training_dir, args.build_id, current_step, model_name, model_version)
+                            # export(args.training_dir, args.build_id, current_step, model_name, model_version)
                             # try to not export on 0 checkpoint
                             # if loss is not None:
-                            # tf.logging.info('!!!!! Start exporting, step: {}'.format(current_step))
-                            # export_subprocess(
-                            #     args.research_dir, args.training_dir, args.build_id,
-                            #     current_step, model_name, model_version,
-                            # )
+                            tf.logging.info('!!!!! Start exporting, step: {}'.format(current_step))
+                            export_subprocess(
+                                args.research_dir, args.training_dir, args.build_id,
+                                current_step, model_name, model_version,
+                            )
                             # else:
                             #     tf.logging.info('!!!!! Skip exporting, step: {}'.format(current_step))
                             loss = v
