@@ -23,7 +23,6 @@ category_index = None
 
 def boolean_string(s):
     s = s.lower()
-    LOG.info('!!!!%s!!!!!' % s)
     if s not in {'false', 'true'}:
         raise ValueError('Not a valid boolean string')
     return s == 'true'
