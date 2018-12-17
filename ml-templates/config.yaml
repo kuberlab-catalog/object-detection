@@ -319,6 +319,27 @@ spec:
       params:
         - name: inputs
           type: bytes
+        - name: threshold
+          type: float
+          value: '0.5'
+        - name: line_thickness
+          type: int
+          value: '3'
+        - name: max_boxes
+          type: int
+          value: '50'
+        - name: skip_scores
+          type: string
+          value: 'true'
+          select:
+          - 'true'
+          - 'false'
+        - name: skip_labels
+          type: string
+          value: 'true'
+          select:
+          - 'true'
+          - 'false'
       response:
         - name: output
           type: bytes
