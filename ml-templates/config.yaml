@@ -319,27 +319,27 @@ spec:
       params:
         - name: inputs
           type: bytes
+          label: Image with the pet that we trying to detect
         - name: threshold
           type: float
-          value: '0.5'
+          label: Allows to filter boxes with low score values (the higher the threshold)
+          value: 0.5
         - name: line_thickness
           type: int
-          value: '3'
+          label: Box line thickness
+          value: 3
         - name: max_boxes
           type: int
-          value: '50'
+          label: Maximum quantity of boxes
+          value: 50
         - name: skip_scores
-          type: string
-          value: 'true'
-          select:
-          - 'true'
-          - 'false'
+          type: bool
+          label: Do not print scores on boxes
+          value: true
         - name: skip_labels
-          type: string
-          value: 'true'
-          select:
-          - 'true'
-          - 'false'
+          type: bool
+          label: Do not print labels on boxes
+          value: true
       response:
         - name: output
           type: bytes
