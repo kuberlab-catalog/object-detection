@@ -89,14 +89,16 @@ def preprocess(inputs, ctx):
         else PARAMS['max_boxes']
 
     skip_labels = inputs.get('skip_labels')
-    ctx.skip_labels = boolean_string(skip_labels[0].decode('utf-8'))\
-        if (skip_labels is not None and len(skip_labels) > 0)\
-        else PARAMS['skip_labels']
+    ctx.skip_labels = skip_labels[0] if skip_labels is not None else PARAMS['skip_labels']
+    # ctx.skip_labels = boolean_string(skip_labels[0].decode('utf-8'))\
+    #     if (skip_labels is not None and len(skip_labels) > 0)\
+    #     else PARAMS['skip_labels']
 
     skip_scores = inputs.get('skip_scores')
-    ctx.skip_scores = boolean_string(skip_scores[0].decode('utf-8'))\
-        if (skip_scores is not None and len(skip_scores) > 0)\
-        else PARAMS['skip_scores']
+    ctx.skip_scores = skip_scores[0] if skip_scores is not None else PARAMS['skip_scores']
+    # ctx.skip_scores = boolean_string(skip_scores[0].decode('utf-8'))\
+    #     if (skip_scores is not None and len(skip_scores) > 0)\
+    #     else PARAMS['skip_scores']
 
     LOG.info('Visualization params: threshold %f, line_thickness %d, max_boxes %d, skip_labels %r, skip_scores %r' %
              (ctx.threshold, ctx.line_thickness, ctx.max_boxes, ctx.skip_labels, ctx.skip_scores))
