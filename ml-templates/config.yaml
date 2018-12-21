@@ -280,8 +280,21 @@ spec:
     images:
       gpu: "kuberlab/serving:latest-gpu"
       cpu: "kuberlab/serving:latest"
-    command: 'kuberlab-serving --port={{ .serving_port }} --model-path=/model'
+    command: >-
+      kuberlab-serving --port={{ .serving_port }} --model-path=/model --hooks serving_hook.py
+      -o label_map=$DATA_DIR/pet_label_map.pbtxt -o skip_labels=true
+      -o skip_scores=true -o line_thickness=2 -o max_boxes=50 -o threshold=0.5
     workdir: "$SRC_DIR"
+    sources:
+    - name: src
+      gitRepo:
+        repository: https://github.com/kuberlab-catalog/object-detection
+      subPath: object-detection/src
+    - name: data
+      datasetFS:
+        workspace: kuberlab-demo
+        version: 1.0.0
+        dataset: object-detection-pets
     resources:
       accelerators:
         gpu: 0
@@ -298,13 +311,38 @@ spec:
       name: grpc
     default_volume_mapping: true
     spec:
-      outMimeType: text/plain
+      outMimeType: image/png
+      outFilter:
+      - output
       rawInput: true
       model: any
       params:
         - name: inputs
           type: bytes
+          label: Image with the pet that we trying to detect
+        - name: threshold
+          type: float
+          label: Allows to filter boxes with low score values (the higher the threshold)
+          value: 0.5
+        - name: line_thickness
+          type: int
+          label: Box line thickness
+          value: 3
+        - name: max_boxes
+          type: int
+          label: Maximum quantity of boxes
+          value: 50
+        - name: skip_scores
+          type: bool
+          label: Do not print scores on boxes
+          value: true
+        - name: skip_labels
+          type: bool
+          label: Do not print labels on boxes
+          value: true
       response:
+        - name: output
+          type: bytes
         - name: detection_boxes
           type: double
           shape:

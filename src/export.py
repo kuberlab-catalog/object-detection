@@ -34,6 +34,7 @@ def main():
     targs.append("--input_type")
     targs.append("encoded_image_string_tensor")
 
+    print("Execute: ", targs)
     call(targs)
 
     m = client.Client()

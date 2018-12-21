@@ -65,7 +65,7 @@ def init_hook(**params):
     global category_index
     category_index = label_map_util.create_category_index(categories)
     LOG.info('Loaded.')
-    LOG.info('initialized with params: %s', PARAMS)
+    LOG.info('Initialized with params: %s', PARAMS)
 
 
 def preprocess(inputs, ctx):
@@ -73,9 +73,38 @@ def preprocess(inputs, ctx):
     if image is None:
         raise RuntimeError('Missing "inputs" key in inputs. Provide an image in "inputs" key')
 
-    image = Image.open(io.BytesIO(image[0]))
-    ctx.image = image
-    return inputs
+    threshold = inputs.get('threshold')
+    ctx.threshold = float(threshold)\
+        if (threshold is not None and float(threshold) > 0)\
+        else PARAMS['threshold']
+
+    line_thickness = inputs.get('line_thickness')
+    ctx.line_thickness = int(line_thickness)\
+        if (line_thickness is not None and int(line_thickness) > 0)\
+        else PARAMS['line_thickness']
+
+    max_boxes = inputs.get('max_boxes')
+    ctx.max_boxes = int(max_boxes)\
+        if (max_boxes is not None and int(max_boxes) > 0)\
+        else PARAMS['max_boxes']
+
+    skip_labels = inputs.get('skip_labels')
+    ctx.skip_labels = skip_labels[0] if skip_labels is not None else PARAMS['skip_labels']
+    # ctx.skip_labels = boolean_string(skip_labels[0].decode('utf-8'))\
+    #     if (skip_labels is not None and len(skip_labels) > 0)\
+    #     else PARAMS['skip_labels']
+
+    skip_scores = inputs.get('skip_scores')
+    ctx.skip_scores = skip_scores[0] if skip_scores is not None else PARAMS['skip_scores']
+    # ctx.skip_scores = boolean_string(skip_scores[0].decode('utf-8'))\
+    #     if (skip_scores is not None and len(skip_scores) > 0)\
+    #     else PARAMS['skip_scores']
+
+    LOG.info('Visualization params: threshold %f, line_thickness %d, max_boxes %d, skip_labels %r, skip_scores %r' %
+             (ctx.threshold, ctx.line_thickness, ctx.max_boxes, ctx.skip_labels, ctx.skip_scores))
+
+    ctx.image = Image.open(io.BytesIO(image[0]))
+    return {'inputs': image}
 
 
 def draw_rectangle(draw, coordinates, color, width=1):
@@ -117,6 +146,9 @@ def postprocess(outputs, ctx):
     ctx.image = ctx.image.convert('RGB')
     image_arr = np.array(ctx.image)
 
+    LOG.info('Visualization params: threshold %f, line_thickness %d, max_boxes %d, skip_labels %r, skip_scores %r' %
+             (ctx.threshold, ctx.line_thickness, ctx.max_boxes, ctx.skip_labels, ctx.skip_scores))
+
     vis_utils.visualize_boxes_and_labels_on_image_array(
         image_arr,
         detection_boxes,
@@ -124,12 +156,12 @@ def postprocess(outputs, ctx):
         detection_scores,
         category_index,
         use_normalized_coordinates=True,
-        max_boxes_to_draw=PARAMS['max_boxes'],
-        min_score_thresh=PARAMS['threshold'],
+        max_boxes_to_draw=ctx.max_boxes,
+        min_score_thresh=ctx.threshold,
         agnostic_mode=False,
-        line_thickness=PARAMS['line_thickness'],
-        skip_labels=PARAMS['skip_labels'],
-        skip_scores=PARAMS['skip_scores'],
+        line_thickness=ctx.line_thickness,
+        skip_labels=ctx.skip_labels,
+        skip_scores=ctx.skip_scores,
     )
     from_arr = Image.fromarray(image_arr)
     image_bytes = io.BytesIO()
