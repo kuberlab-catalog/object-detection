@@ -79,7 +79,7 @@ def postprocess(outputs, ctx):
 
     mask = np.less(total_mask, ctx.pixel_threshold)
     image = np.array(ctx.image)
-    image = np.dstack((image, np.ones((height, width))))
+    image = np.dstack((image, np.ones((height, width))*255))
     image[mask] = 0
     image = Image.fromarray(image,mode='RGBA')
     image_bytes = io.BytesIO()
