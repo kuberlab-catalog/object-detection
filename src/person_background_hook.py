@@ -32,7 +32,6 @@ def preprocess(inputs, ctx):
 
 def postprocess(outputs, ctx):
     num_detection = int(outputs['num_detections'][0])
-    logging.info('num_detection: {}'.format(num_detection))
 
     def return_original():
         image_bytes = io.BytesIO()
@@ -47,12 +46,10 @@ def postprocess(outputs, ctx):
     height = ctx.image.size[1]
     image_area = width * height
     detection_boxes = outputs["detection_boxes"][0][:num_detection]
-    logging.info('detection_boxes: {}'.format(detection_boxes))
     detection_boxes = detection_boxes * [height, width, height, width]
     detection_boxes = detection_boxes.astype(np.int32)
     # detection_scores = outputs["detection_scores"][0][:num_detection]
     detection_classes = outputs["detection_classes"][0][:num_detection]
-    logging.info('detection_classes: {}'.format(detection_classes))
     detection_masks = outputs["detection_masks"][0][:num_detection]
 
     masks = []
@@ -81,7 +78,9 @@ def postprocess(outputs, ctx):
     image = np.array(ctx.image)
     image = np.dstack((image, np.ones((height, width))*255))
     image[mask] = 0
-    image = Image.fromarray(image,mode='RGBA')
+    logging.info('image: {}'.format(image))
+    logging.info('image.shape: {}'.format(image.shape))
+    image = Image.fromarray(np.uint8(image))
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
     outputs['output'] = image_bytes.getvalue()
