@@ -27,8 +27,8 @@ def preprocess(inputs, ctx):
     ctx.max_objects = int(inputs.get('max_objects', 100))
     ctx.pixel_threshold = float(inputs.get('pixel_threshold', 0.5))
     ctx.object_classes = [int(inputs.get('object_class', 1))]
-    ctx.image_filter = [int(inputs.get('image_filter', 1))]
-    ctx.blur_radius = [int(inputs.get('blur_radius', 2))]
+    ctx.image_filter = int(inputs.get('image_filter', 1))
+    ctx.blur_radius = int(inputs.get('blur_radius', 2))
     return {'inputs': [np_image]}
 
 
