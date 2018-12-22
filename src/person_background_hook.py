@@ -24,7 +24,7 @@ def preprocess(inputs, ctx):
     np_image = np.array(image)
     ctx.image = image
     ctx.area_threshold = int(inputs.get('area_threshold', 0))
-    ctx.max_objects = int(inputs.get('max_objects'), 100)
+    ctx.max_objects = int(inputs.get('max_objects', 100))
     ctx.pixel_threshold = float(inputs.get('pixel_threshold', 0.5))
     ctx.object_classes = [int(inputs.get('object_class', 1))]
     return {'inputs': [np_image]}
