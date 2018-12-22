@@ -85,7 +85,7 @@ def postprocess(outputs, ctx):
         objects = image[mask]
         image = ctx.image.filter(ImageFilter.GaussianBlur(radius=2))
         image = np.array(image)
-        image[masks] = objects
+        image[mask] = objects
         image = Image.fromarray(np.uint8(image))
 
     image_bytes = io.BytesIO()
