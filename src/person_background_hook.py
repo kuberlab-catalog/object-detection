@@ -28,7 +28,7 @@ def preprocess(inputs, ctx):
     image = image.convert('RGB')
     np_image = np.array(image)
     ctx.image = image
-    return {'image_tensor': [np_image]}
+    return {'image_tensor:0': [np_image]}
 
 
 def postprocess(outputs, ctx):
