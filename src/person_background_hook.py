@@ -6,17 +6,12 @@ from PIL import Image
 import PIL.ImageColor as ImageColor
 
 LOG = logging.getLogger(__name__)
-PARAMS = {
-    'threshold': 0.5,
-    'class': [1]
-}
 
 
 def init_hook(**params):
     # PARAMS['threshold'] = params.get('threshold',0.5)
     # PARAMS['class'] = params.get('class',1)
     LOG.info('Loaded.')
-    LOG.info('initialized with params: %s', PARAMS)
 
 
 def preprocess(inputs, ctx):
@@ -28,21 +23,29 @@ def preprocess(inputs, ctx):
     image = image.convert('RGB')
     np_image = np.array(image)
     ctx.image = image
+    ctx.area_threshold = int(inputs.get('area_threshold', 0))
+    ctx.max_objects = int(inputs.get('max_objects'), 100)
+    ctx.pixel_threshold = float(inputs.get('pixel_threshold', 0.5))
+    ctx.object_classes = [int(inputs.get('object_class', 1))]
     return {'inputs': [np_image]}
 
 
 def postprocess(outputs, ctx):
     num_detection = int(outputs['num_detections'][0])
     logging.info('num_detection: {}'.format(num_detection))
-    if num_detection < 1:
+
+    def return_original():
         image_bytes = io.BytesIO()
         ctx.image.save(image_bytes, format='PNG')
         outputs['output'] = image_bytes.getvalue()
         return outputs
 
+    if num_detection < 1:
+        return return_original()
+
     width = ctx.image.size[0]
     height = ctx.image.size[1]
-
+    image_area = width * height
     detection_boxes = outputs["detection_boxes"][0][:num_detection]
     logging.info('detection_boxes: {}'.format(detection_boxes))
     detection_boxes = detection_boxes * [height, width, height, width]
@@ -52,25 +55,35 @@ def postprocess(outputs, ctx):
     logging.info('detection_classes: {}'.format(detection_classes))
     detection_masks = outputs["detection_masks"][0][:num_detection]
 
-    total_mask = np.zeros((height, width), np.float32)
+    masks = []
     for i in range(num_detection):
-        if int(detection_classes[i]) not in PARAMS['class']:
+        if int(detection_classes[i]) not in ctx.object_classes:
             continue
         mask_image = Image.fromarray(detection_masks[i])
         box = detection_boxes[i]
         mask_image = mask_image.resize((box[3] - box[1], box[2] - box[0]), Image.LANCZOS)
         box_mask = np.array(mask_image)
         box_mask = np.pad(box_mask, ((box[0], height - box[2]), (box[1], width - box[3])), 'constant')
-        total_mask += box_mask
-    mask = np.less(total_mask, 0.5).astype(np.int32)
-    color = 'white'
-    alpha = 1
-    rgb = ImageColor.getrgb(color)
-    solid_color = np.expand_dims(np.ones_like(mask), axis=2) * np.reshape(list(rgb), [1, 1, 3])
-    pil_solid_color = Image.fromarray(np.uint8(solid_color)).convert('RGBA')
-    pil_mask = Image.fromarray(np.uint8(255.0 * alpha * mask)).convert('L')
-    pil_image = Image.composite(pil_solid_color, ctx.image, pil_mask)
+        area = int(np.sum(np.greater_equal(box_mask, ctx.pixel_threshold).astype(np.int32)))
+        if area * 100 / image_area < ctx.area_threshold:
+            continue
+        masks.append((area, box_mask))
+
+    if len(masks) < 1:
+        return return_original()
+
+    sorted(masks, key=lambda row: -row[0])
+    total_mask = np.zeros((height, width), np.float32)
+    for i in range(min(len(masks), ctx.max_objects)):
+        total_mask += masks[i][1]
+
+    mask = np.less(total_mask, ctx.pixel_threshold)
+    np.ctx.image
+    image = np.array(ctx.image)
+    image = np.dstack((image, np.ones((height, width))))
+    image[mask] = 0
+    image = Image.fromarray(image)
     image_bytes = io.BytesIO()
-    pil_image.save(image_bytes, format='PNG')
+    image.save(image_bytes, format='PNG')
     outputs['output'] = image_bytes.getvalue()
     return outputs
