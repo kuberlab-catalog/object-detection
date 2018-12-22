@@ -28,6 +28,7 @@ def preprocess(inputs, ctx):
     ctx.pixel_threshold = float(inputs.get('pixel_threshold', 0.5))
     ctx.object_classes = [int(inputs.get('object_class', 1))]
     ctx.image_filter = [int(inputs.get('image_filter', 1))]
+    ctx.blur_radius = [int(inputs.get('blur_radius', 2))]
     return {'inputs': [np_image]}
 
 
@@ -83,7 +84,8 @@ def postprocess(outputs, ctx):
         mask = np.greater_equal(total_mask, ctx.pixel_threshold)
         image = np.array(ctx.image)
         objects = image[mask]
-        image = ctx.image.filter(ImageFilter.GaussianBlur(radius=2))
+        radius = min(max(ctx.blur_radius,2),10)
+        image = ctx.image.filter(ImageFilter.GaussianBlur(radius=ctx.radius))
         image = np.array(image)
         image[mask] = objects
         image = Image.fromarray(np.uint8(image))
