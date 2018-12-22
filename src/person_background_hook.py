@@ -70,7 +70,7 @@ def postprocess(outputs, ctx):
 
     if len(masks) < 1:
         return return_original()
-    sorted(masks, key=lambda row: -row[0])
+    masks = sorted(masks, key=lambda row: -row[0])
     total_mask = np.zeros((height, width), np.float32)
     for i in range(min(len(masks), ctx.max_objects)):
         total_mask += masks[i][1]
