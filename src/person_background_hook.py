@@ -85,7 +85,7 @@ def postprocess(outputs, ctx):
         image = np.array(ctx.image)
         objects = image[mask]
         radius = min(max(ctx.blur_radius,2),10)
-        image = ctx.image.filter(ImageFilter.GaussianBlur(radius=ctx.radius))
+        image = ctx.image.filter(ImageFilter.GaussianBlur(radius=radius))
         image = np.array(image)
         image[mask] = objects
         image = Image.fromarray(np.uint8(image))
