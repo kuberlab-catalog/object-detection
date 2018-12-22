@@ -3,7 +3,7 @@ import logging
 
 import numpy as np
 from PIL import Image
-import PIL.ImageColor as ImageColor
+from PIL import ImageFilter
 
 LOG = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ def preprocess(inputs, ctx):
     ctx.max_objects = int(inputs.get('max_objects', 100))
     ctx.pixel_threshold = float(inputs.get('pixel_threshold', 0.5))
     ctx.object_classes = [int(inputs.get('object_class', 1))]
+    ctx.image_filter = [int(inputs.get('image_filter', 1))]
     return {'inputs': [np_image]}
 
 
@@ -68,19 +69,25 @@ def postprocess(outputs, ctx):
 
     if len(masks) < 1:
         return return_original()
-
     sorted(masks, key=lambda row: -row[0])
     total_mask = np.zeros((height, width), np.float32)
     for i in range(min(len(masks), ctx.max_objects)):
         total_mask += masks[i][1]
+    if ctx.image_filter == 0:
+        mask = np.less(total_mask, ctx.pixel_threshold)
+        image = np.array(ctx.image)
+        image = np.dstack((image, np.ones((height, width)) * 255))
+        image[mask] = 0
+        image = Image.fromarray(np.uint8(image))
+    else:
+        mask = np.greater_equal(total_mask, ctx.pixel_threshold)
+        image = np.array(ctx.image)
+        objects = image[mask]
+        image = ctx.image.filter(ImageFilter.GaussianBlur(radius=2))
+        image = np.array(image)
+        image[masks] = objects
+        image = Image.fromarray(np.uint8(image))
 
-    mask = np.less(total_mask, ctx.pixel_threshold)
-    image = np.array(ctx.image)
-    image = np.dstack((image, np.ones((height, width))*255))
-    image[mask] = 0
-    logging.info('image: {}'.format(image))
-    logging.info('image.shape: {}'.format(image.shape))
-    image = Image.fromarray(np.uint8(image))
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
     outputs['output'] = image_bytes.getvalue()
