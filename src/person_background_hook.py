@@ -81,7 +81,7 @@ def postprocess(outputs, ctx):
     image = np.array(ctx.image)
     image = np.dstack((image, np.ones((height, width))))
     image[mask] = 0
-    image = Image.fromarray(image)
+    image = Image.fromarray(image,mode='RGBA')
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
     outputs['output'] = image_bytes.getvalue()
