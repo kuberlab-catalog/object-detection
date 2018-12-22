@@ -78,7 +78,6 @@ def postprocess(outputs, ctx):
         total_mask += masks[i][1]
 
     mask = np.less(total_mask, ctx.pixel_threshold)
-    np.ctx.image
     image = np.array(ctx.image)
     image = np.dstack((image, np.ones((height, width))))
     image[mask] = 0
