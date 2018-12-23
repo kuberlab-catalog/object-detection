@@ -60,7 +60,7 @@ def postprocess(outputs, ctx):
             continue
         mask_image = Image.fromarray(detection_masks[i])
         box = detection_boxes[i]
-        mask_image = mask_image.resize((box[3] - box[1], box[2] - box[0]), Image.BICUBIC)
+        mask_image = mask_image.resize((box[3] - box[1], box[2] - box[0]), Image.NEAREST)
         box_mask = np.array(mask_image)
         box_mask = np.pad(box_mask, ((box[0], height - box[2]), (box[1], width - box[3])), 'constant')
         area = int(np.sum(np.greater_equal(box_mask, ctx.pixel_threshold).astype(np.int32)))
