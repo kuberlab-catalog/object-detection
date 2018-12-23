@@ -73,13 +73,18 @@ def postprocess(outputs, ctx):
     masks = sorted(masks, key=lambda row: -row[0])
     total_mask = np.zeros((height, width), np.float32)
     for i in range(min(len(masks), ctx.max_objects)):
-        total_mask += masks[i][1]
+        total_mask = np.maximum(total_mask,masks[i][1])
     if ctx.image_filter == 0:
         mask = np.less(total_mask, ctx.pixel_threshold)
         image = np.array(ctx.image)
         image = np.dstack((image, np.ones((height, width)) * 255))
         image[mask] = 0
         image = Image.fromarray(np.uint8(image))
+    elif ctx.image_filter == 5:
+        mask = np.less(total_mask, ctx.pixel_threshold)
+        total_mask[mask] = 0
+        total_mask = total_mask*255
+        image = Image.fromarray(np.uint8(total_mask))
     else:
         mask = np.greater_equal(total_mask, ctx.pixel_threshold)
         image = np.array(ctx.image)
