@@ -81,8 +81,8 @@ def postprocess(outputs, ctx):
         image[mask] = 0
         image = Image.fromarray(np.uint8(image))
     elif ctx.image_filter == 5:
-        mask = np.less(total_mask, ctx.pixel_threshold)
-        total_mask[mask] = 0
+        #mask = np.less(total_mask, ctx.pixel_threshold)
+        #total_mask[mask] = 0
         total_mask = total_mask*255
         image = Image.fromarray(np.uint8(total_mask))
     else:
