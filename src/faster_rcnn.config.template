@@ -22,14 +22,14 @@ model {
     }
     feature_extractor {
       type: 'faster_rcnn_inception_resnet_v2'
-      first_stage_features_stride: 16
+      first_stage_features_stride: 8
     }
     first_stage_anchor_generator {
       grid_anchor_generator {
         scales: [{{ args.grid_scales|sort|join(", ") }}]
         aspect_ratios: [{{ args.grid_aspect_ratios|sort|join(", ") }}]
-        height_stride: 16
-        width_stride: 16
+        height_stride: 8
+        width_stride: 8
       }
     }
     first_stage_box_predictor_conv_hyperparams {
