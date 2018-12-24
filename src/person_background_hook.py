@@ -13,7 +13,12 @@ def init_hook(**params):
     # PARAMS['class'] = params.get('class',1)
     LOG.info('Loaded.')
 
-
+interploations = {
+    0:Image.LANCZOS,
+    1:Image.NEAREST,
+    2:Image.BICUBIC,
+    3:Image.BILINEAR,
+}
 def preprocess(inputs, ctx):
     image = inputs.get('inputs')
     if image is None:
@@ -29,6 +34,7 @@ def preprocess(inputs, ctx):
     ctx.object_classes = [int(inputs.get('object_class', 1))]
     ctx.image_filter = int(inputs.get('image_filter', 1))
     ctx.blur_radius = int(inputs.get('blur_radius', 2))
+    ctx.interpolation = interploations[int(inputs.get('interpolation', 0))]
     return {'inputs': [np_image]}
 
 
@@ -60,7 +66,7 @@ def postprocess(outputs, ctx):
             continue
         mask_image = Image.fromarray(detection_masks[i])
         box = detection_boxes[i]
-        mask_image = mask_image.resize((box[3] - box[1], box[2] - box[0]), Image.LANCZOS)
+        mask_image = mask_image.resize((box[3] - box[1], box[2] - box[0]), ctx.interpolation)
         box_mask = np.array(mask_image)
         box_mask = np.pad(box_mask, ((box[0], height - box[2]), (box[1], width - box[3])), 'constant')
         area = int(np.sum(np.greater_equal(box_mask, ctx.pixel_threshold).astype(np.int32)))
