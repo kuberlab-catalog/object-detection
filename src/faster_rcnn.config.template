@@ -87,8 +87,8 @@ model {
         }
         predict_instance_masks: true
         mask_prediction_conv_depth: 0
-        mask_height: 33
-        mask_width: 33
+        mask_height: 160
+        mask_width: 160
         mask_prediction_num_conv_layers: 4
       }
     }
