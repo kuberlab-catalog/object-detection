@@ -87,8 +87,8 @@ model {
         }
         predict_instance_masks: true
         mask_prediction_conv_depth: 0
-        mask_height: 160
-        mask_width: 160
+        mask_height: 128
+        mask_width: 128
         mask_prediction_num_conv_layers: 4
       }
     }
@@ -96,8 +96,8 @@ model {
       batch_non_max_suppression {
         score_threshold: 0.300000011921
         iou_threshold: 0.600000023842
-        max_detections_per_class: 100
-        max_total_detections: 100
+        max_detections_per_class: 10
+        max_total_detections: 10
       }
       score_converter: SOFTMAX
     }
