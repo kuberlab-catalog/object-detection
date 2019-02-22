@@ -17,6 +17,8 @@ PARAMS = {
     'skip_scores': False,
     'line_thickness': 3,
     'max_boxes': 20,
+    'input_type': 'encoded_image_string',  # or image_tensor
+    'output_type': 'image',  # or boxes
 }
 category_index = None
 
@@ -34,6 +36,17 @@ def init_hook(**params):
     skip_labels = params.get('skip_labels')
     thickness = params.get('line_thickness')
     max_boxes = params.get('max_boxes')
+    input_type = params.get('input_type')
+    output_type = params.get('output_type')
+
+    if input_type and input_type in ['encoded_image_string', 'image_tensor']:
+        LOG.info('Set input type to "%s"' % input_type)
+        PARAMS['input_type'] = input_type
+
+    if output_type and output_type in ['image', 'boxes']:
+        LOG.info('Set output type to "%s"' % output_type)
+        PARAMS['output_type'] = output_type
+
     if skip_labels:
         PARAMS['skip_labels'] = boolean_string(skip_labels)
 
@@ -104,7 +117,12 @@ def preprocess(inputs, ctx):
              (ctx.threshold, ctx.line_thickness, ctx.max_boxes, ctx.skip_labels, ctx.skip_scores))
 
     ctx.image = Image.open(io.BytesIO(image[0]))
-    return {'inputs': image}
+    i_type = PARAMS['input_type']
+    if i_type == 'encoded_image_string':
+        return {'inputs': image}
+    else:
+        img = ctx.image.convert('RGB')
+        return {'inputs': [np.array(img)]}
 
 
 def draw_rectangle(draw, coordinates, color, width=1):
@@ -132,17 +150,36 @@ def add_overlays(frame, boxes, labels=None):
                 )
 
 
-def postprocess(outputs, ctx):
-    # keys
-    # "detection_boxes"
-    # "detection_classes"
-    # "detection_scores"
-    # "num_detections"
+def get_detection_output(outputs, index=None):
     detection_boxes = outputs["detection_boxes"].reshape([-1, 4])
     detection_scores = outputs["detection_scores"].reshape([-1])
     detection_classes = np.int32((outputs["detection_classes"])).reshape([-1])
-    width = ctx.image.size[0]
-    height = ctx.image.size[1]
+
+    max_boxes = PARAMS['max_boxes']
+    threshold = PARAMS['threshold']
+
+    detection_scores = detection_scores[np.where(detection_scores > threshold)]
+    if len(detection_scores) < max_boxes:
+        max_boxes = len(detection_scores)
+    else:
+        detection_scores = detection_scores[:max_boxes]
+
+    detection_boxes = detection_boxes[:max_boxes]
+    detection_classes = detection_classes[:max_boxes]
+
+    classes = [index[i]['name'] for i in detection_classes]
+
+    return {
+        'detection_boxes': detection_boxes,
+        'detection_classes': classes,
+        'detection_scores': detection_scores,
+    }
+
+
+def image_output(outputs, ctx):
+    detection_boxes = outputs["detection_boxes"].reshape([-1, 4])
+    detection_scores = outputs["detection_scores"].reshape([-1])
+    detection_classes = np.int32((outputs["detection_classes"])).reshape([-1])
     ctx.image = ctx.image.convert('RGB')
     image_arr = np.array(ctx.image)
 
@@ -169,3 +206,16 @@ def postprocess(outputs, ctx):
 
     outputs['output'] = image_bytes.getvalue()
     return outputs
+
+
+def postprocess(outputs, ctx):
+    # keys
+    # "detection_boxes"
+    # "detection_classes"
+    # "detection_scores"
+    # "num_detections"
+    o_type = PARAMS['output_type']
+    if o_type == 'image':
+        return image_output(outputs, ctx)
+    else:
+        return get_detection_output(outputs, index=category_index)
