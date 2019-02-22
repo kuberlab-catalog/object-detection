@@ -7,20 +7,23 @@ storage:
 dataset:
   value: object-detection-pets
   workspace: kuberlab-demo
-  version: "1.0.0"
+  version: 1.0.0
   wizard:
     name: "Dataset configuration"
     kind: dataset
 
 pretrained:
+  value: coco-faster-rcnn-pretrained
+  workspace: kuberlab-demo
+  version: 1.0.0
   wizard:
-    name: "Select pretrained model"
+    name: "Select pre-trained model"
     kind: model
 
 code:
   value: object-detection-code
   workspace: kuberlab-demo
-  version: "0.0.10"
+  version: 0.0.10
   wizard:
     name: "Select model with object detection API"
     kind: model
